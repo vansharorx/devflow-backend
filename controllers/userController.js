@@ -1,7 +1,13 @@
 const { validationResult } = require('express-validator');
+const { addUser, getAllUsers } = require('../models/userModel');
 
 exports.getUsers = (req, res) => {
-    res.json({ message: "Get all users" });
+    const users = getAllUsers();
+
+    res.json({
+        message: "Users fetched successfully",
+        data: users
+    });
 };
 
 exports.createUser = (req, res) => {
@@ -15,8 +21,16 @@ exports.createUser = (req, res) => {
 
     const { name, email } = req.body;
 
+    const newUser = {
+        id: Date.now(),
+        name,
+        email
+    };
+
+    addUser(newUser);
+
     res.json({
         message: "User created successfully",
-        data: { name, email }
+        data: newUser
     });
 };
