@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const { getUsers, createUser } = require('../controllers/userController');
+const {
+    getUsers,
+    createUser,
+    updateUser,
+    deleteUser
+} = require('../controllers/userController');
 
 const { body } = require('express-validator');
 
@@ -15,5 +20,8 @@ router.post(
     ],
     createUser
 );
+
+router.put('/:id', updateUser);
+router.delete('/:id', deleteUser);
 
 module.exports = router;
