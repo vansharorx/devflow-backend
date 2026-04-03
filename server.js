@@ -6,9 +6,12 @@ app.use(express.json());
 // import routes
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
+const issueRoutes = require('./routes/issueRoutes');
+
 // use routes
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/issues', issueRoutes);
 app.get('/health', (req, res) => {
     res.json({ message: "Server running" });
 });
