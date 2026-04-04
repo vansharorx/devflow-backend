@@ -1,8 +1,27 @@
-const { addIssue, getAllIssues } = require('../models/issueModel');
+const {
+    addIssue,
+    getAllIssues,
+    updateIssueStatus,
+    getIssuesByProject,
+    getIssuesByStatus
+} = require('../models/issueModel');
 
 exports.getIssues = (req, res) => {
+    const { projectId, status } = req.query;
+
+    if (projectId) {
+        return res.json({
+            data: getIssuesByProject(projectId)
+        });
+    }
+
+    if (status) {
+        return res.json({
+            data: getIssuesByStatus(status)
+        });
+    }
+
     res.json({
-        message: "Issues fetched successfully",
         data: getAllIssues()
     });
 };
@@ -31,5 +50,29 @@ exports.createIssue = (req, res) => {
     res.json({
         message: "Issue created successfully",
         data: newIssue
+    });
+};
+
+exports.updateIssueStatus = (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({
+            message: "Status is required"
+        });
+    }
+
+    const updated = updateIssueStatus(id, status);
+
+    if (!updated) {
+        return res.status(404).json({
+            message: "Issue not found"
+        });
+    }
+
+    res.json({
+        message: "Issue status updated",
+        data: updated
     });
 };
