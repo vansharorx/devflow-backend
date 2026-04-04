@@ -8,6 +8,10 @@ const getAllUsers = () => {
     return users;
 };
 
+const findUserById = (id) => {
+    return users.find(user => user.id == id);
+};
+
 const updateUser = (id, updatedData) => {
     const index = users.findIndex(user => user.id == id);
 
@@ -32,5 +36,6 @@ module.exports = {
     addUser,
     getAllUsers,
     updateUser,
-    deleteUser
+    deleteUser,
+    findUserById
 };

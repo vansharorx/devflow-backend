@@ -8,7 +8,12 @@ const getAllProjects = () => {
     return projects;
 };
 
+const findProjectById = (id) => {
+    return projects.find(project => project.id == id);
+};
+
 module.exports = {
     addProject,
-    getAllProjects
+    getAllProjects,
+    findProjectById
 };

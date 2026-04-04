@@ -26,12 +26,31 @@ exports.getIssues = (req, res) => {
     });
 };
 
+const { findProjectById } = require('../models/projectModel');
+const { findUserById } = require('../models/userModel');
+
 exports.createIssue = (req, res) => {
     const { title, description, projectId, createdBy, status } = req.body;
 
     if (!title || !projectId || !createdBy) {
         return res.status(400).json({
             message: "Title, projectId and createdBy are required"
+        });
+    }
+
+    // 🔥 Validate project exists
+    const project = findProjectById(projectId);
+    if (!project) {
+        return res.status(404).json({
+            message: "Project not found"
+        });
+    }
+
+    // 🔥 Validate user exists
+    const user = findUserById(createdBy);
+    if (!user) {
+        return res.status(404).json({
+            message: "User not found"
         });
     }
 
