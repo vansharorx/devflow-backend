@@ -7,7 +7,7 @@ app.use(express.json());
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const issueRoutes = require('./routes/issueRoutes');
-
+const errorHandler = require('./middleware/errorMiddleware');
 // use routes
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
@@ -15,7 +15,7 @@ app.use('/api/issues', issueRoutes);
 app.get('/health', (req, res) => {
     res.json({ message: "Server running" });
 });
-
+app.use(errorHandler);
 const PORT = 2005;
 
 app.listen(PORT, () => {
