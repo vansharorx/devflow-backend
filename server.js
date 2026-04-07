@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 
@@ -16,7 +17,7 @@ app.get('/health', (req, res) => {
     res.json({ message: "Server running" });
 });
 app.use(errorHandler);
-const PORT = 2005;
+const PORT = process.env.PORT || 2005;
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
