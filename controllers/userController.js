@@ -29,7 +29,9 @@ exports.createUser = (req, res, next) => {
         const newUser = {
             id: Date.now(),
             name,
-            email
+            email,
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         addUser(newUser);
@@ -45,7 +47,11 @@ exports.updateUser = (req, res, next) => {
         const { id } = req.params;
         const { name, email } = req.body;
 
-        const updated = updateUser(id, { name, email });
+        const updated = updateUser(id, {
+            name,
+            email,
+            updatedAt: new Date()
+        });
 
         if (!updated) {
             return res.status(404).json({ message: "User not found" });

@@ -17,7 +17,12 @@ const updateUser = (id, updatedData) => {
 
     if (index === -1) return null;
 
-    users[index] = { ...users[index], ...updatedData };
+    users[index] = {
+        ...users[index],
+        ...updatedData,
+        updatedAt: new Date()
+    };
+
     return users[index];
 };
 

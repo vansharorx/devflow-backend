@@ -64,7 +64,8 @@ exports.createIssue = (req, res, next) => {
             projectId,
             createdBy,
             status: status || "OPEN",
-            createdAt: new Date()
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         addIssue(newIssue);
@@ -89,7 +90,10 @@ exports.updateIssueStatus = (req, res, next) => {
             });
         }
 
-        const updated = updateIssueStatus(id, status);
+        const updated = updateIssueStatus(id, {
+            status,
+            updatedAt: new Date()
+        });
 
         if (!updated) {
             return res.status(404).json({

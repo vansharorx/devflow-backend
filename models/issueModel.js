@@ -8,12 +8,14 @@ const getAllIssues = () => {
     return issues;
 };
 
-const updateIssueStatus = (id, status) => {
+const updateIssueStatus = (id, updates) => {
     const issue = issues.find(i => i.id == id);
 
     if (!issue) return null;
 
-    issue.status = status;
+    issue.status = updates.status;
+    issue.updatedAt = new Date();
+
     return issue;
 };
 

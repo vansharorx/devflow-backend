@@ -34,7 +34,8 @@ exports.createProject = (req, res, next) => {
             name,
             description,
             createdBy,
-            createdAt: new Date()
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
 
         addProject(newProject);
