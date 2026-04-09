@@ -8,29 +8,30 @@ const {
 
 const { findProjectById } = require('../models/projectModel');
 const { findUserById } = require('../models/userModel');
+const { getPaginatedIssues } = require('../models/issueModel');
 
-exports.getIssues = (req, res, next) => {
-    try {
-        const { projectId, status } = req.query;
+exports.getIssues = (req, res) => {
+    const { page = 1, limit = 5, projectId, status } = req.query;
 
-        if (projectId) {
-            return res.json({
-                data: getIssuesByProject(projectId)
-            });
-        }
-
-        if (status) {
-            return res.json({
-                data: getIssuesByStatus(status)
-            });
-        }
-
-        res.json({
-            data: getAllIssues()
+    if (projectId) {
+        return res.json({
+            data: getIssuesByProject(projectId)
         });
-    } catch (error) {
-        next(error);
     }
+
+    if (status) {
+        return res.json({
+            data: getIssuesByStatus(status)
+        });
+    }
+
+    const paginated = getPaginatedIssues(Number(page), Number(limit));
+
+    res.json({
+        page: Number(page),
+        limit: Number(limit),
+        data: paginated
+    });
 };
 
 exports.createIssue = (req, res, next) => {

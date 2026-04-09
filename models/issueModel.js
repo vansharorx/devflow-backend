@@ -27,10 +27,18 @@ const getIssuesByStatus = (status) => {
     return issues.filter(i => i.status === status);
 };
 
+const getPaginatedIssues = (page = 1, limit = 5) => {
+    const start = (page - 1) * limit;
+    const end = start + limit;
+
+    return issues.slice(start, end);
+};
+
 module.exports = {
     addIssue,
     getAllIssues,
     updateIssueStatus,
     getIssuesByProject,
-    getIssuesByStatus
+    getIssuesByStatus,
+    getPaginatedIssues 
 };
