@@ -4,6 +4,12 @@ const addIssue = (issue) => {
     issues.push(issue);
 };
 
+const searchIssues = (query) => {
+    return issues.filter(issue =>
+        issue.title.toLowerCase().includes(query.toLowerCase())
+    );
+};
+
 const getAllIssues = () => {
     return issues;
 };
@@ -36,6 +42,7 @@ const getPaginatedIssues = (page = 1, limit = 5) => {
 
 module.exports = {
     addIssue,
+    searchIssues,
     getAllIssues,
     updateIssueStatus,
     getIssuesByProject,

@@ -3,15 +3,23 @@ const {
     getAllIssues,
     updateIssueStatus,
     getIssuesByProject,
-    getIssuesByStatus
+    getIssuesByStatus,
+    searchIssues
 } = require('../models/issueModel');
 
 const { findProjectById } = require('../models/projectModel');
 const { findUserById } = require('../models/userModel');
 const { getPaginatedIssues } = require('../models/issueModel');
 
+
 exports.getIssues = (req, res) => {
-    const { page = 1, limit = 5, projectId, status } = req.query;
+    const { page = 1, limit = 5, projectId, status, search } = req.query;
+
+    if (search) {
+        return res.json({
+            data: searchIssues(search)
+        });
+    }
 
     if (projectId) {
         return res.json({
