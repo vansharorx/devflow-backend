@@ -10,6 +10,17 @@ const searchIssues = (query) => {
     );
 };
 
+const assignIssue = (id, userId) => {
+    const issue = issues.find(i => i.id == id);
+
+    if (!issue) return null;
+
+    issue.assignedTo = userId;
+    issue.updatedAt = new Date();
+
+    return issue;
+};
+
 const getAllIssues = () => {
     return issues;
 };
@@ -43,6 +54,7 @@ const getPaginatedIssues = (page = 1, limit = 5) => {
 module.exports = {
     addIssue,
     searchIssues,
+    assignIssue,
     getAllIssues,
     updateIssueStatus,
     getIssuesByProject,

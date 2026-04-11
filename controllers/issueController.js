@@ -9,6 +9,7 @@ const {
 
 const { findProjectById } = require('../models/projectModel');
 const { findUserById } = require('../models/userModel');
+const { assignIssue } = require('../models/issueModel');
 const { getPaginatedIssues } = require('../models/issueModel');
 
 
@@ -86,6 +87,38 @@ exports.createIssue = (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+exports.assignIssue = (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({
+            message: "User ID is required"
+        });
+    }
+
+    // 🔥 Validate user exists
+    const user = findUserById(userId);
+    if (!user) {
+        return res.status(404).json({
+            message: "User not found"
+        });
+    }
+
+    const updated = assignIssue(id, userId);
+
+    if (!updated) {
+        return res.status(404).json({
+            message: "Issue not found"
+        });
+    }
+
+    res.json({
+        message: "Issue assigned successfully",
+        data: updated
+    });
 };
 
 exports.updateIssueStatus = (req, res, next) => {
