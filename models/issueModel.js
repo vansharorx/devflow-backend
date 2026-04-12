@@ -1,7 +1,18 @@
 let issues = [];
 
 const addIssue = (issue) => {
-    issues.push(issue);
+    const newIssue = {
+        ...issue,
+        id: Date.now(),
+        status: issue.status || "OPEN",
+        assignedTo: null,
+        history: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+    };
+
+    issues.push(newIssue);
+    return newIssue;
 };
 
 const searchIssues = (query) => {
@@ -12,8 +23,13 @@ const searchIssues = (query) => {
 
 const assignIssue = (id, userId) => {
     const issue = issues.find(i => i.id == id);
-
     if (!issue) return null;
+
+    issue.history.push({
+        action: "ASSIGNED",
+        assignedTo: userId,
+        timestamp: new Date()
+    });
 
     issue.assignedTo = userId;
     issue.updatedAt = new Date();
@@ -27,10 +43,17 @@ const getAllIssues = () => {
 
 const updateIssueStatus = (id, updates) => {
     const issue = issues.find(i => i.id == id);
-
     if (!issue) return null;
 
-    issue.status = updates.status;
+    const status = updates.status;
+
+    issue.history.push({
+        action: "STATUS_UPDATED",
+        newStatus: status,
+        timestamp: new Date()
+    });
+
+    issue.status = status;
     issue.updatedAt = new Date();
 
     return issue;
@@ -59,5 +82,5 @@ module.exports = {
     updateIssueStatus,
     getIssuesByProject,
     getIssuesByStatus,
-    getPaginatedIssues 
+    getPaginatedIssues
 };

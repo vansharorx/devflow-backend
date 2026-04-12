@@ -4,13 +4,13 @@ const {
     updateIssueStatus,
     getIssuesByProject,
     getIssuesByStatus,
-    searchIssues
+    searchIssues,
+    assignIssue,
+    getPaginatedIssues
 } = require('../models/issueModel');
 
 const { findProjectById } = require('../models/projectModel');
 const { findUserById } = require('../models/userModel');
-const { assignIssue } = require('../models/issueModel');
-const { getPaginatedIssues } = require('../models/issueModel');
 
 
 exports.getIssues = (req, res) => {
@@ -43,6 +43,7 @@ exports.getIssues = (req, res) => {
     });
 };
 
+
 exports.createIssue = (req, res, next) => {
     try {
         const { title, description, projectId, createdBy, status } = req.body;
@@ -74,6 +75,8 @@ exports.createIssue = (req, res, next) => {
             projectId,
             createdBy,
             status: status || "OPEN",
+            assignedTo: null,
+            history: [],
             createdAt: new Date(),
             updatedAt: new Date()
         };
@@ -89,6 +92,7 @@ exports.createIssue = (req, res, next) => {
     }
 };
 
+
 exports.assignIssue = (req, res) => {
     const { id } = req.params;
     const { userId } = req.body;
@@ -99,7 +103,6 @@ exports.assignIssue = (req, res) => {
         });
     }
 
-    // 🔥 Validate user exists
     const user = findUserById(userId);
     if (!user) {
         return res.status(404).json({
@@ -120,6 +123,7 @@ exports.assignIssue = (req, res) => {
         data: updated
     });
 };
+
 
 exports.updateIssueStatus = (req, res, next) => {
     try {
@@ -150,4 +154,22 @@ exports.updateIssueStatus = (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+
+exports.getIssueHistory = (req, res) => {
+    const { id } = req.params;
+
+    const issues = getAllIssues();
+    const issue = issues.find(i => String(i.id) === String(id));
+
+    if (!issue) {
+        return res.status(404).json({
+            message: "Issue not found"
+        });
+    }
+
+    res.json({
+        data: issue.history || []
+    });
 };
