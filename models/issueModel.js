@@ -1,28 +1,33 @@
 let issues = [];
 
 const addIssue = (issue) => {
-    const newIssue = {
-        ...issue,
-        id: Date.now(),
-        status: issue.status || "OPEN",
-        assignedTo: null,
-        history: [],
-        createdAt: new Date(),
-        updatedAt: new Date()
-    };
-
-    issues.push(newIssue);
-    return newIssue;
+    issues.push(issue);
 };
 
-const searchIssues = (query) => {
-    return issues.filter(issue =>
-        issue.title.toLowerCase().includes(query.toLowerCase())
-    );
+const getAllIssues = () => issues;
+
+const findIssueById = (id) => {
+    return issues.find(i => i.id == id);
+};
+
+const updateIssueStatus = (id, status) => {
+    const issue = findIssueById(id);
+    if (!issue) return null;
+
+    issue.history.push({
+        action: "STATUS_UPDATED",
+        newStatus: status,
+        timestamp: new Date()
+    });
+
+    issue.status = status;
+    issue.updatedAt = new Date();
+
+    return issue;
 };
 
 const assignIssue = (id, userId) => {
-    const issue = issues.find(i => i.id == id);
+    const issue = findIssueById(id);
     if (!issue) return null;
 
     issue.history.push({
@@ -37,28 +42,6 @@ const assignIssue = (id, userId) => {
     return issue;
 };
 
-const getAllIssues = () => {
-    return issues;
-};
-
-const updateIssueStatus = (id, updates) => {
-    const issue = issues.find(i => i.id == id);
-    if (!issue) return null;
-
-    const status = updates.status;
-
-    issue.history.push({
-        action: "STATUS_UPDATED",
-        newStatus: status,
-        timestamp: new Date()
-    });
-
-    issue.status = status;
-    issue.updatedAt = new Date();
-
-    return issue;
-};
-
 const getIssuesByProject = (projectId) => {
     return issues.filter(i => i.projectId == projectId);
 };
@@ -67,20 +50,42 @@ const getIssuesByStatus = (status) => {
     return issues.filter(i => i.status === status);
 };
 
+const searchIssues = (query) => {
+    return issues.filter(i =>
+        i.title.toLowerCase().includes(query.toLowerCase())
+    );
+};
+
 const getPaginatedIssues = (page = 1, limit = 5) => {
     const start = (page - 1) * limit;
-    const end = start + limit;
+    return issues.slice(start, start + limit);
+};
 
-    return issues.slice(start, end);
+/* 🔥 NEW: Analytics */
+const getIssueStats = () => {
+    const stats = {
+        total: issues.length,
+        OPEN: 0,
+        IN_PROGRESS: 0,
+        CLOSED: 0
+    };
+
+    issues.forEach(issue => {
+        stats[issue.status]++;
+    });
+
+    return stats;
 };
 
 module.exports = {
     addIssue,
-    searchIssues,
-    assignIssue,
     getAllIssues,
     updateIssueStatus,
+    assignIssue,
     getIssuesByProject,
     getIssuesByStatus,
-    getPaginatedIssues
+    searchIssues,
+    getPaginatedIssues,
+    getIssueStats,
+    findIssueById
 };

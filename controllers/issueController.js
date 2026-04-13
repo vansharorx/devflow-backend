@@ -11,7 +11,16 @@ const {
 
 const { findProjectById } = require('../models/projectModel');
 const { findUserById } = require('../models/userModel');
+const { getIssueStats } = require('../models/issueModel');
 
+exports.getIssueStats = (req, res) => {
+    const stats = getIssueStats();
+
+    res.json({
+        message: "Issue stats fetched",
+        data: stats
+    });
+};
 
 exports.getIssues = (req, res) => {
     const { page = 1, limit = 5, projectId, status, search } = req.query;
