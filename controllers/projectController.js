@@ -1,5 +1,7 @@
 const { addProject, getAllProjects } = require('../models/projectModel');
 const { findUserById } = require('../models/userModel');
+const { getProjectStats } = require('../models/projectModel');
+const { getAllIssues } = require('../models/issueModel');
 
 exports.getProjects = (req, res, next) => {
     try {
@@ -9,6 +11,17 @@ exports.getProjects = (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+exports.getProjectAnalytics = (req, res) => {
+    const issues = getAllIssues();
+
+    const stats = getProjectStats(issues);
+
+    res.json({
+        message: "Project analytics fetched",
+        data: stats
+    });
 };
 
 exports.createProject = (req, res, next) => {
