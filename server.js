@@ -4,12 +4,19 @@ const app = express();
 
 app.use(express.json());
 
-// import routes
+
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const issueRoutes = require('./routes/issueRoutes');
 const errorHandler = require('./middleware/errorMiddleware');
-// use routes
+app.use((req, res, next) => {
+    // fake logged-in user (for testing)
+    req.user = {
+        id: 123,
+        role: "ADMIN" // change to test roles
+    };
+    next();
+});
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/issues', issueRoutes);

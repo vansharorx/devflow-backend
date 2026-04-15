@@ -16,4 +16,6 @@ router.put('/:id/status', updateIssueStatus);
 router.put('/:id/assign', assignIssue);
 router.get('/:id/history', getIssueHistory);
 router.get('/stats', getIssueStats);
+router.put('/:id/status', authorizeRoles("ADMIN", "MANAGER"), updateIssueStatus);
+router.put('/:id/assign', authorizeRoles("ADMIN", "MANAGER"), assignIssue);
 module.exports = router;

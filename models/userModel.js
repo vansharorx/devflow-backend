@@ -1,4 +1,12 @@
 let users = [];
+const newUser = {
+    id: Date.now(),
+    name,
+    email,
+    role: "DEVELOPER", // default role
+    createdAt: new Date(),
+    updatedAt: new Date()
+};
 
 const addUser = (user) => {
     users.push(user);
@@ -38,6 +46,7 @@ const deleteUser = (id) => {
 };
 
 module.exports = {
+    newUser,
     addUser,
     getAllUsers,
     updateUser,
