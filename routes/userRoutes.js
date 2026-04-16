@@ -9,6 +9,7 @@ const {
 } = require('../controllers/userController');
 
 const { body } = require('express-validator');
+const validate = require('../middleware/validationMiddleware');
 
 router.get('/', getUsers);
 
@@ -18,6 +19,7 @@ router.post(
         body('name').notEmpty().withMessage('Name is required'),
         body('email').isEmail().withMessage('Valid email required')
     ],
+    validate,
     createUser
 );
 
