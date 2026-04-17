@@ -8,38 +8,28 @@ const {
 
 const { successResponse, errorResponse } = require('../utils/responseHandler');
 
-exports.getUsers = (req, res, next) => {
-    try {
-        successResponse(res, "Users fetched", getAllUsers());
-    } catch (error) {
-        next(error);
-    }
+const {
+    createUserService,
+    getUsersService
+} = require('../services/userService');
+
+exports.getUsers = (req, res) => {
+    const users = getUsersService();
+
+    res.json({
+        success: true,
+        data: users
+    });
 };
 
-exports.createUser = (req, res, next) => {
-    try {
-        const errors = validationResult(req);
+exports.createUser = (req, res) => {
+    const user = createUserService(req.body);
 
-        if (!errors.isEmpty()) {
-            return errorResponse(res, "Validation failed", 400);
-        }
-
-        const { name, email } = req.body;
-
-        const newUser = {
-            id: Date.now(),
-            name,
-            email,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
-        addUser(newUser);
-
-        successResponse(res, "User created", newUser);
-    } catch (error) {
-        next(error);
-    }
+    res.json({
+        success: true,
+        message: "User created",
+        data: user
+    });
 };
 
 exports.updateUser = (req, res, next) => {
