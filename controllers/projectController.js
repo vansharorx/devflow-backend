@@ -1,63 +1,51 @@
-const { addProject, getAllProjects } = require('../models/projectModel');
-const { findUserById } = require('../models/userModel');
+const {
+    createProjectService,
+    getProjectsService
+} = require('../services/projectService');
+
 const { getProjectStats } = require('../models/projectModel');
 const { getAllIssues } = require('../models/issueModel');
 
 exports.getProjects = (req, res, next) => {
     try {
+        const projects = getProjectsService();
+
         res.json({
-            data: getAllProjects()
+            success: true,
+            message: "Projects fetched",
+            data: projects
         });
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
-};
-
-exports.getProjectAnalytics = (req, res) => {
-    const issues = getAllIssues();
-
-    const stats = getProjectStats(issues);
-
-    res.json({
-        message: "Project analytics fetched",
-        data: stats
-    });
 };
 
 exports.createProject = (req, res, next) => {
     try {
-        const { name, description, createdBy } = req.body;
-
-        if (!name || !createdBy) {
-            return res.status(400).json({
-                message: "Name and createdBy are required"
-            });
-        }
-
-        const user = findUserById(createdBy);
-
-        if (!user) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
-
-        const newProject = {
-            id: Date.now(),
-            name,
-            description,
-            createdBy,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
-        addProject(newProject);
+        const project = createProjectService(req.body);
 
         res.json({
-            message: "Project created successfully",
-            data: newProject
+            success: true,
+            message: "Project created",
+            data: project
         });
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/* 🔥 Analytics */
+exports.getProjectAnalytics = (req, res, next) => {
+    try {
+        const issues = getAllIssues();
+        const stats = getProjectStats(issues);
+
+        res.json({
+            success: true,
+            message: "Project analytics fetched",
+            data: stats
+        });
+    } catch (err) {
+        next(err);
     }
 };

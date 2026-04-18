@@ -1,76 +1,32 @@
-const { validationResult } = require('express-validator');
-const {
-    addUser,
-    getAllUsers,
-    updateUser,
-    deleteUser
-} = require('../models/userModel');
-
-const { successResponse, errorResponse } = require('../utils/responseHandler');
-
 const {
     createUserService,
     getUsersService
 } = require('../services/userService');
 
-exports.getUsers = (req, res) => {
-    const users = getUsersService();
-
-    res.json({
-        success: true,
-        data: users
-    });
-};
-
-exports.createUser = (req, res) => {
-    const user = createUserService(req.body);
-
-    res.json({
-        success: true,
-        message: "User created",
-        data: user
-    });
-};
-
-exports.updateUser = (req, res, next) => {
+exports.getUsers = (req, res, next) => {
     try {
-        const { id } = req.params;
-        const { name, email } = req.body;
-
-        const updated = updateUser(id, {
-            name,
-            email,
-            updatedAt: new Date()
-        });
-
-        if (!updated) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        const users = getUsersService();
 
         res.json({
-            message: "User updated successfully",
-            data: updated
+            success: true,
+            message: "Users fetched",
+            data: users
         });
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 };
 
-exports.deleteUser = (req, res, next) => {
+exports.createUser = (req, res, next) => {
     try {
-        const { id } = req.params;
-
-        const deleted = deleteUser(id);
-
-        if (!deleted) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        const user = createUserService(req.body);
 
         res.json({
-            message: "User deleted successfully",
-            data: deleted
+            success: true,
+            message: "User created",
+            data: user
         });
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 };
