@@ -1,11 +1,14 @@
 let users = [];
-const newUser = {
-    id: Date.now(),
-    name,
-    email,
-    role: "DEVELOPER", // default role
-    createdAt: new Date(),
-    updatedAt: new Date()
+
+const createUser = (name, email) => {
+    return {
+        id: Date.now(),
+        name: name,
+        email: email,
+        role: "DEVELOPER",
+        createdAt: new Date(),
+        updatedAt: new Date()
+    };
 };
 
 const addUser = (user) => {
@@ -46,7 +49,7 @@ const deleteUser = (id) => {
 };
 
 module.exports = {
-    newUser,
+    createUser,
     addUser,
     getAllUsers,
     updateUser,

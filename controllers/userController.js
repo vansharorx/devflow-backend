@@ -30,3 +30,10 @@ exports.createUser = (req, res, next) => {
         next(err);
     }
 };
+exports.updateUser = (req, res, next) => {
+    res.send("Update user not implemented yet");
+};
+
+exports.deleteUser = (req, res, next) => {
+    res.send("Delete user not implemented yet");
+};
