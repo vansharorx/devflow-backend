@@ -1,24 +1,22 @@
 const {
     addUser,
-    getAllUsers,
-    updateUser,
-    deleteUser
+    getAllUsers
 } = require('../models/userModel');
 
-const createUserService = (data) => {
+const createUserService = async (data) => {
     const newUser = {
         id: Date.now(),
         ...data,
-        role: "DEVELOPER",
-        createdAt: new Date(),
-        updatedAt: new Date()
+        role: "DEVELOPER"
     };
 
-    addUser(newUser);
+    await addUser(newUser);
     return newUser;
 };
 
-const getUsersService = () => getAllUsers();
+const getUsersService = async () => {
+    return await getAllUsers();
+};
 
 module.exports = {
     createUserService,

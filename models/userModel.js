@@ -1,58 +1,50 @@
-let users = [];
+const db = require('../config/db');
 
-const createUser = (name, email) => {
-    return {
-        id: Date.now(),
-        name: name,
-        email: email,
-        role: "DEVELOPER",
-        createdAt: new Date(),
-        updatedAt: new Date()
-    };
-};
-
+/* CREATE USER */
 const addUser = (user) => {
-    users.push(user);
+    return new Promise((resolve, reject) => {
+        const sql = `
+            INSERT INTO users (id, name, email, role)
+            VALUES (?, ?, ?, ?)
+        `;
+
+        db.query(
+            sql,
+            [user.id, user.name, user.email, user.role],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
 };
 
+/* GET USERS */
 const getAllUsers = () => {
-    return users;
+    return new Promise((resolve, reject) => {
+        db.query("SELECT * FROM users", (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
 };
 
+/* FIND USER BY ID */
 const findUserById = (id) => {
-    return users.find(user => user.id == id);
-};
-
-const updateUser = (id, updatedData) => {
-    const index = users.findIndex(user => user.id == id);
-
-    if (index === -1) return null;
-
-    users[index] = {
-        ...users[index],
-        ...updatedData,
-        updatedAt: new Date()
-    };
-
-    return users[index];
-};
-
-const deleteUser = (id) => {
-    const index = users.findIndex(user => user.id == id);
-
-    if (index === -1) return null;
-
-    const deletedUser = users[index];
-    users.splice(index, 1);
-
-    return deletedUser;
+    return new Promise((resolve, reject) => {
+        db.query(
+            "SELECT * FROM users WHERE id = ?",
+            [id],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
 };
 
 module.exports = {
-    createUser,
     addUser,
     getAllUsers,
-    updateUser,
-    deleteUser,
     findUserById
 };

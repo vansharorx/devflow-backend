@@ -3,23 +3,25 @@ const {
     getUsersService
 } = require('../services/userService');
 
-exports.getUsers = (req, res, next) => {
+exports.getUsers = async (req, res) => {
     try {
-        const users = getUsersService();
+        const users = await getUsersService();
 
         res.json({
             success: true,
-            message: "Users fetched",
             data: users
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-exports.createUser = (req, res, next) => {
+exports.createUser = async (req, res) => {
     try {
-        const user = createUserService(req.body);
+        const user = await createUserService(req.body);
 
         res.json({
             success: true,
@@ -27,13 +29,37 @@ exports.createUser = (req, res, next) => {
             data: user
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
-exports.updateUser = (req, res, next) => {
-    res.send("Update user not implemented yet");
+
+exports.updateUser = async (req, res) => {
+    try {
+        res.json({
+            success: true,
+            message: "updateUser working"
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
 };
 
-exports.deleteUser = (req, res, next) => {
-    res.send("Delete user not implemented yet");
+exports.deleteUser = async (req, res) => {
+    try {
+        res.json({
+            success: true,
+            message: "deleteUser working"
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
 };
