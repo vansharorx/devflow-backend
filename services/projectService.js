@@ -6,10 +6,10 @@ const {
 
 const { findUserById } = require('../models/userModel');
 
-const createProjectService = (data) => {
+const createProjectService = async (data) => {
     const { name, description, createdBy } = data;
 
-    const user = findUserById(createdBy);
+    const user = await findUserById(createdBy);
     if (!user) {
         throw new Error("User not found");
     }
@@ -18,16 +18,16 @@ const createProjectService = (data) => {
         id: Date.now(),
         name,
         description,
-        createdBy,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdBy
     };
 
-    addProject(newProject);
+    await addProject(newProject);
     return newProject;
 };
 
-const getProjectsService = () => getAllProjects();
+const getProjectsService = async () => {
+    return await getAllProjects();
+};
 
 module.exports = {
     createProjectService,

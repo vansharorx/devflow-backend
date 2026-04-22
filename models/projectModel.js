@@ -1,49 +1,47 @@
-let projects = [];
+const db = require('../config/db');
 
 const addProject = (project) => {
-    projects.push(project);
+    return new Promise((resolve, reject) => {
+        const sql = `
+            INSERT INTO projects (id, name, description, created_by)
+            VALUES (?, ?, ?, ?)
+        `;
+
+        db.query(
+            sql,
+            [project.id, project.name, project.description, project.createdBy],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
 };
 
 const getAllProjects = () => {
-    return projects;
+    return new Promise((resolve, reject) => {
+        db.query("SELECT * FROM projects", (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
 };
 
 const findProjectById = (id) => {
-    return projects.find(p => p.id == id);
-};
-
-
-const getProjectStats = (issues) => {
-    return projects.map(project => {
-        const projectIssues = issues.filter(i => i.projectId == project.id);
-
-        const total = projectIssues.length;
-
-        const open = projectIssues.filter(i => i.status === "OPEN").length;
-        const inProgress = projectIssues.filter(i => i.status === "IN_PROGRESS").length;
-        const closed = projectIssues.filter(i => i.status === "CLOSED").length;
-
-        // simple health score
-        let health = 100;
-        if (total > 0) {
-            health = Math.round((closed / total) * 100);
-        }
-
-        return {
-            projectId: project.id,
-            projectName: project.name,
-            totalIssues: total,
-            OPEN: open,
-            IN_PROGRESS: inProgress,
-            CLOSED: closed,
-            healthScore: health
-        };
+    return new Promise((resolve, reject) => {
+        db.query(
+            "SELECT * FROM projects WHERE id = ?",
+            [id],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
     });
 };
 
 module.exports = {
     addProject,
     getAllProjects,
-    findProjectById,
-    getProjectStats
+    findProjectById
 };

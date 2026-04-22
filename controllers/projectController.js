@@ -3,26 +3,25 @@ const {
     getProjectsService
 } = require('../services/projectService');
 
-const { getProjectStats } = require('../models/projectModel');
-const { getAllIssues } = require('../models/issueModel');
-
-exports.getProjects = (req, res, next) => {
+exports.getProjects = async (req, res) => {
     try {
-        const projects = getProjectsService();
+        const projects = await getProjectsService();
 
         res.json({
             success: true,
-            message: "Projects fetched",
             data: projects
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-exports.createProject = (req, res, next) => {
+exports.createProject = async (req, res) => {
     try {
-        const project = createProjectService(req.body);
+        const project = await createProjectService(req.body);
 
         res.json({
             success: true,
@@ -30,22 +29,23 @@ exports.createProject = (req, res, next) => {
             data: project
         });
     } catch (err) {
-        next(err);
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-/* 🔥 Analytics */
-exports.getProjectAnalytics = (req, res, next) => {
+exports.getProjectAnalytics = async (req, res) => {
     try {
-        const issues = getAllIssues();
-        const stats = getProjectStats(issues);
-
         res.json({
             success: true,
-            message: "Project analytics fetched",
-            data: stats
+            message: "Analytics endpoint working"
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
