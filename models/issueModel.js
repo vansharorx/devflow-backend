@@ -1,91 +1,88 @@
-let issues = [];
+const db = require('../config/db');
+
 
 const addIssue = (issue) => {
-    issues.push(issue);
+    return new Promise((resolve, reject) => {
+        const sql = `
+            INSERT INTO issues 
+            (id, title, description, project_id, created_by, assigned_to, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(
+            sql,
+            [
+                issue.id,
+                issue.title,
+                issue.description,
+                issue.projectId,
+                issue.createdBy,
+                issue.assignedTo,
+                issue.status
+            ],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
 };
 
-const getAllIssues = () => issues;
+
+const getAllIssues = () => {
+    return new Promise((resolve, reject) => {
+        db.query("SELECT * FROM issues", (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+};
+
 
 const findIssueById = (id) => {
-    return issues.find(i => i.id == id);
+    return new Promise((resolve, reject) => {
+        db.query(
+            "SELECT * FROM issues WHERE id = ?",
+            [id],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
 };
 
+
 const updateIssueStatus = (id, status) => {
-    const issue = findIssueById(id);
-    if (!issue) return null;
-
-    issue.history.push({
-        action: "STATUS_UPDATED",
-        newStatus: status,
-        timestamp: new Date()
+    return new Promise((resolve, reject) => {
+        db.query(
+            "UPDATE issues SET status = ? WHERE id = ?",
+            [status, id],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
     });
-
-    issue.status = status;
-    issue.updatedAt = new Date();
-
-    return issue;
 };
 
 const assignIssue = (id, userId) => {
-    const issue = findIssueById(id);
-    if (!issue) return null;
-
-    issue.history.push({
-        action: "ASSIGNED",
-        assignedTo: userId,
-        timestamp: new Date()
+    return new Promise((resolve, reject) => {
+        db.query(
+            "UPDATE issues SET assigned_to = ? WHERE id = ?",
+            [userId, id],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
     });
-
-    issue.assignedTo = userId;
-    issue.updatedAt = new Date();
-
-    return issue;
-};
-
-const getIssuesByProject = (projectId) => {
-    return issues.filter(i => i.projectId == projectId);
-};
-
-const getIssuesByStatus = (status) => {
-    return issues.filter(i => i.status === status);
-};
-
-const searchIssues = (query) => {
-    return issues.filter(i =>
-        i.title.toLowerCase().includes(query.toLowerCase())
-    );
-};
-
-const getPaginatedIssues = (page = 1, limit = 5) => {
-    const start = (page - 1) * limit;
-    return issues.slice(start, start + limit);
-};
-
-/* 🔥 NEW: Analytics */
-const getIssueStats = () => {
-    const stats = {
-        total: issues.length,
-        OPEN: 0,
-        IN_PROGRESS: 0,
-        CLOSED: 0
-    };
-
-    issues.forEach(issue => {
-        stats[issue.status]++;
-    });
-
-    return stats;
 };
 
 module.exports = {
     addIssue,
     getAllIssues,
+    findIssueById,
     updateIssueStatus,
-    assignIssue,
-    getIssuesByProject,
-    getIssuesByStatus,
-    searchIssues,
-    getPaginatedIssues,
-    getIssueStats,
-    findIssueById
+    assignIssue
 };

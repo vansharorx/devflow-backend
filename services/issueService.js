@@ -1,25 +1,21 @@
 const {
     addIssue,
     getAllIssues,
+    findIssueById,
     updateIssueStatus,
-    assignIssue,
-    getIssuesByProject,
-    getIssuesByStatus,
-    searchIssues,
-    getPaginatedIssues,
-    findIssueById
+    assignIssue
 } = require('../models/issueModel');
 
 const { findProjectById } = require('../models/projectModel');
 const { findUserById } = require('../models/userModel');
 
-const createIssueService = (data) => {
-    const { title, description, projectId, createdBy, status } = data;
+const createIssueService = async (data) => {
+    const { title, description, projectId, createdBy } = data;
 
-    const project = findProjectById(projectId);
+    const project = await findProjectById(projectId);
     if (!project) throw new Error("Project not found");
 
-    const user = findUserById(createdBy);
+    const user = await findUserById(createdBy);
     if (!user) throw new Error("User not found");
 
     const newIssue = {
@@ -29,24 +25,21 @@ const createIssueService = (data) => {
         projectId,
         createdBy,
         assignedTo: null,
-        status: status || "OPEN",
-        history: [],
-        createdAt: new Date(),
-        updatedAt: new Date()
+        status: "OPEN"
     };
 
-    addIssue(newIssue);
+    await addIssue(newIssue);
     return newIssue;
+};
+
+const getIssuesService = async () => {
+    return await getAllIssues();
 };
 
 module.exports = {
     createIssueService,
-    getAllIssues,
+    getIssuesService,
     updateIssueStatus,
     assignIssue,
-    getIssuesByProject,
-    getIssuesByStatus,
-    searchIssues,
-    getPaginatedIssues,
     findIssueById
 };

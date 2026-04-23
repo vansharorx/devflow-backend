@@ -5,6 +5,8 @@ const authorizeRoles = require('../middleware/roleMiddleware');
 const { body } = require('express-validator');
 const validate = require('../middleware/validationMiddleware');
 
+const issueController = require('../controllers/issueController');
+
 const {
     getIssues,
     createIssue,
@@ -12,12 +14,11 @@ const {
     updateIssueStatus,
     getIssueHistory,
     getIssueStats
-} = require('../controllers/issueController');
+} = issueController;
+
 
 router.get('/', getIssues);
-
 router.get('/stats', getIssueStats);
-
 router.get('/:id/history', getIssueHistory);
 
 router.post(

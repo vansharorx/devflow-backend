@@ -1,59 +1,32 @@
 const {
     createIssueService,
-    getAllIssues,
-    updateIssueStatus,
-    assignIssue,
-    getIssuesByProject,
-    getIssuesByStatus,
-    searchIssues,
-    getPaginatedIssues,
+    getIssuesService,
+    updateIssueStatus: updateIssueStatusService,
+    assignIssue: assignIssueService,
     findIssueById
 } = require('../services/issueService');
 
-const { findUserById } = require('../models/userModel');
-const { getIssueStats } = require('../models/issueModel');
 
-exports.getIssues = (req, res, next) => {
+exports.getIssues = async (req, res) => {
     try {
-        const { page = 1, limit = 5, projectId, status, search } = req.query;
-
-        if (search) {
-            return res.json({
-                success: true,
-                data: searchIssues(search)
-            });
-        }
-
-        if (projectId) {
-            return res.json({
-                success: true,
-                data: getIssuesByProject(projectId)
-            });
-        }
-
-        if (status) {
-            return res.json({
-                success: true,
-                data: getIssuesByStatus(status)
-            });
-        }
-
-        const paginated = getPaginatedIssues(Number(page), Number(limit));
+        const issues = await getIssuesService();
 
         res.json({
             success: true,
-            page: Number(page),
-            limit: Number(limit),
-            data: paginated
+            data: issues
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-exports.createIssue = (req, res, next) => {
+
+exports.createIssue = async (req, res) => {
     try {
-        const issue = createIssueService(req.body);
+        const issue = await createIssueService(req.body);
 
         res.json({
             success: true,
@@ -61,98 +34,86 @@ exports.createIssue = (req, res, next) => {
             data: issue
         });
     } catch (err) {
-        next(err);
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-exports.updateIssueStatus = (req, res, next) => {
+
+exports.updateIssueStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
 
-        const updated = updateIssueStatus(id, status);
-
-        if (!updated) {
-            return res.status(404).json({
-                success: false,
-                message: "Issue not found"
-            });
-        }
+        await updateIssueStatusService(id, status);
 
         res.json({
             success: true,
-            message: "Status updated",
-            data: updated
+            message: "Status updated"
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-exports.assignIssue = (req, res, next) => {
+
+exports.assignIssue = async (req, res) => {
     try {
         const { id } = req.params;
         const { userId } = req.body;
 
-        const user = findUserById(userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
-            });
-        }
-
-        const updated = assignIssue(id, userId);
-
-        if (!updated) {
-            return res.status(404).json({
-                success: false,
-                message: "Issue not found"
-            });
-        }
+        await assignIssueService(id, userId);
 
         res.json({
             success: true,
-            message: "Issue assigned",
-            data: updated
+            message: "Issue assigned"
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-exports.getIssueHistory = (req, res, next) => {
+
+exports.getIssueHistory = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const issue = findIssueById(id);
-
-        if (!issue) {
-            return res.status(404).json({
-                success: false,
-                message: "Issue not found"
-            });
-        }
+        // optional: use findIssueById if needed
+        const issue = await findIssueById(id);
 
         res.json({
             success: true,
-            data: issue.history
+            message: "Issue history fetched",
+            data: issue || []
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
 
-exports.getIssueStats = (req, res, next) => {
-    try {
-        const stats = getIssueStats();
 
+exports.getIssueStats = async (req, res) => {
+    try {
         res.json({
             success: true,
             message: "Issue stats fetched",
-            data: stats
+            data: {}
         });
     } catch (err) {
-        next(err);
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
     }
 };
