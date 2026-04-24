@@ -13,12 +13,14 @@ const {
     assignIssue,
     updateIssueStatus,
     getIssueHistory,
-    getIssueStats
+    getIssueStats,
+    getDetailedIssues
 } = issueController;
 
 
 router.get('/', getIssues);
 router.get('/stats', getIssueStats);
+router.get('/detailed', getDetailedIssues);
 router.get('/:id/history', getIssueHistory);
 
 router.post(

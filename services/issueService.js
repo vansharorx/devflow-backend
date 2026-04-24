@@ -3,7 +3,8 @@ const {
     getAllIssues,
     findIssueById,
     updateIssueStatus,
-    assignIssue
+    assignIssue,
+    getDetailedIssues
 } = require('../models/issueModel');
 
 const { findProjectById } = require('../models/projectModel');
@@ -36,9 +37,14 @@ const getIssuesService = async () => {
     return await getAllIssues();
 };
 
+const getDetailedIssuesService = async () => {
+    return await getDetailedIssues();
+};
+
 module.exports = {
     createIssueService,
     getIssuesService,
+    getDetailedIssuesService,
     updateIssueStatus,
     assignIssue,
     findIssueById

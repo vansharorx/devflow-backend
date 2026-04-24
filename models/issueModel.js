@@ -78,11 +78,35 @@ const assignIssue = (id, userId) => {
         );
     });
 };
+const getDetailedIssues = () => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT 
+                i.id,
+                i.title,
+                i.description,
+                i.status,
+                i.created_at,
+                p.name AS project_name,
+                u.name AS created_by_name,
+                a.name AS assigned_to_name
+            FROM issues i
+            LEFT JOIN projects p ON i.project_id = p.id
+            LEFT JOIN users u ON i.created_by = u.id
+            LEFT JOIN users a ON i.assigned_to = a.id
+        `;
 
+        db.query(sql, (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+};
 module.exports = {
     addIssue,
     getAllIssues,
     findIssueById,
     updateIssueStatus,
-    assignIssue
+    assignIssue,
+    getDetailedIssues
 };

@@ -3,7 +3,8 @@ const {
     getIssuesService,
     updateIssueStatus: updateIssueStatusService,
     assignIssue: assignIssueService,
-    findIssueById
+    findIssueById,
+    getDetailedIssuesService
 } = require('../services/issueService');
 
 
@@ -109,6 +110,22 @@ exports.getIssueStats = async (req, res) => {
             success: true,
             message: "Issue stats fetched",
             data: {}
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
+
+exports.getDetailedIssues = async (req, res) => {
+    try {
+        const data = await getDetailedIssuesService();
+
+        res.json({
+            success: true,
+            data
         });
     } catch (err) {
         res.status(500).json({
