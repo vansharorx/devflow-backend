@@ -102,11 +102,42 @@ const getDetailedIssues = () => {
         });
     });
 };
+const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) => {
+    return new Promise((resolve, reject) => {
+        const offset = (page - 1) * limit;
+
+        let sql = `
+            SELECT * FROM issues
+            WHERE 1=1
+        `;
+
+        const params = [];
+
+        if (status) {
+            sql += " AND status = ?";
+            params.push(status);
+        }
+
+        if (projectId) {
+            sql += " AND project_id = ?";
+            params.push(projectId);
+        }
+
+        sql += " LIMIT ? OFFSET ?";
+        params.push(Number(limit), Number(offset));
+
+        db.query(sql, params, (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+};
 module.exports = {
     addIssue,
     getAllIssues,
     findIssueById,
     updateIssueStatus,
     assignIssue,
-    getDetailedIssues
+    getDetailedIssues,
+    getPaginatedFilteredIssues
 };
