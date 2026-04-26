@@ -132,30 +132,6 @@ const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) 
         });
     });
 };
-const searchIssuesDB = ({ query = '', page = 1, limit = 5 }) => {
-    return new Promise((resolve, reject) => {
-        const offset = (page - 1) * limit;
-
-        const sql = `
-            SELECT *
-            FROM issues
-            WHERE title LIKE ? OR description LIKE ?
-            ORDER BY created_at DESC
-            LIMIT ? OFFSET ?
-        `;
-
-        const like = `%${query}%`;
-
-        db.query(
-            sql,
-            [like, like, Number(limit), Number(offset)],
-            (err, results) => {
-                if (err) return reject(err);
-                resolve(results);
-            }
-        );
-    });
-};
 module.exports = {
     addIssue,
     getAllIssues,
@@ -163,6 +139,5 @@ module.exports = {
     updateIssueStatus,
     assignIssue,
     getDetailedIssues,
-    getPaginatedFilteredIssues,
-    searchIssuesDB
+    getPaginatedFilteredIssues
 };

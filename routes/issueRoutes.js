@@ -19,6 +19,7 @@ const {
 } = issueController;
 
 router.get('/filter', getFilteredIssues);
+
 router.get('/', getIssues);
 router.get('/stats', getIssueStats);
 router.get('/detailed', getDetailedIssues);
