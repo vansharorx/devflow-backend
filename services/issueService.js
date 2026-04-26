@@ -5,7 +5,8 @@ const {
   updateIssueStatus,
   assignIssue,
   getDetailedIssues,
-  getPaginatedFilteredIssues
+  getPaginatedFilteredIssues,
+  searchIssuesDB
 } = require('../models/issueModel');
 
 const { findProjectById } = require('../models/projectModel');
@@ -46,11 +47,16 @@ const getFilteredIssuesService = async (query) => {
   return await getPaginatedFilteredIssues(query);
 };
 
+const searchIssuesService = async (params) => {
+  return await searchIssuesDB(params);
+};
+
 module.exports = {
   createIssueService,
   getIssuesService,
   getDetailedIssuesService,
   getFilteredIssuesService,
+  searchIssuesService,
   updateIssueStatus,
   assignIssue,
   findIssueById

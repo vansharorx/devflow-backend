@@ -5,7 +5,8 @@ const {
   assignIssue: assignIssueService,
   findIssueById,
   getDetailedIssuesService,
-  getFilteredIssuesService
+  getFilteredIssuesService,
+  searchIssuesService
 } = require('../services/issueService');
 
 exports.getIssues = async (req, res) => {
@@ -144,6 +145,22 @@ exports.getFilteredIssues = async (req, res) => {
       success: true,
       page: Number(page),
       limit: Number(limit),
+      data
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+exports.searchIssues = async (req, res) => {
+  try {
+    const data = await searchIssuesService(req.query);
+
+    res.json({
+      success: true,
       data
     });
   } catch (err) {
