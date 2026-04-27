@@ -15,9 +15,11 @@ const {
   getIssueHistory,
   getIssueStats,
   getDetailedIssues,
-  getFilteredIssues
+  getFilteredIssues,
+  searchIssues
 } = issueController;
 
+router.get('/search', searchIssues);
 router.get('/filter', getFilteredIssues);
 
 router.get('/', getIssues);
