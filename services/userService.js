@@ -1,12 +1,24 @@
+const bcrypt = require('bcrypt');
+
 const {
     addUser,
     getAllUsers
 } = require('../models/userModel');
 
 const createUserService = async (data) => {
+    const { name, email, password } = data;
+
+    if (!password) {
+        throw new Error("Password is required");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = {
         id: Date.now(),
-        ...data,
+        name,
+        email,
+        password: hashedPassword,
         role: "DEVELOPER"
     };
 

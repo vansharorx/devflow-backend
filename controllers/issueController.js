@@ -153,3 +153,33 @@ exports.getFilteredIssues = async (req, res) => {
     });
   }
 };
+
+exports.searchIssues = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "Search query is required"
+      });
+    }
+
+    const issues = await getIssuesService();
+
+    const filtered = issues.filter(issue =>
+      issue.title?.toLowerCase().includes(query.toLowerCase())
+    );
+
+    res.json({
+      success: true,
+      results: filtered
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+};

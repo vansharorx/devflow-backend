@@ -19,6 +19,7 @@ const {
   searchIssues
 } = issueController;
 
+
 router.get('/search', searchIssues);
 router.get('/filter', getFilteredIssues);
 
