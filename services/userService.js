@@ -2,9 +2,28 @@ const bcrypt = require('bcrypt');
 
 const {
     addUser,
-    getAllUsers
+    getAllUsers,
+    findUserByEmail
 } = require('../models/userModel');
 
+
+const loginUserService = async ({ email, password }) => {
+    const user = await findUserByEmail(email);
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+        throw new Error("Invalid credentials");
+    }
+
+    return user;
+};
+
+module.exports.loginUserService = loginUserService;
 const createUserService = async (data) => {
     const { name, email, password } = data;
 
@@ -32,5 +51,6 @@ const getUsersService = async () => {
 
 module.exports = {
     createUserService,
-    getUsersService
+    getUsersService,
+    loginUserService
 };

@@ -1,6 +1,7 @@
 const {
     createUserService,
-    getUsersService
+    getUsersService,
+    loginUserService
 } = require('../services/userService');
 
 exports.getUsers = async (req, res) => {
@@ -58,6 +59,23 @@ exports.deleteUser = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
+
+exports.loginUser = async (req, res) => {
+    try {
+        const user = await loginUserService(req.body);
+
+        res.json({
+            success: true,
+            message: "Login successful",
+            data: user
+        });
+    } catch (err) {
+        res.status(400).json({
             success: false,
             message: err.message
         });
