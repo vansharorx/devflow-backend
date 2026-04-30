@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-
+const jwt = require('jsonwebtoken');
 const {
     addUser,
     getAllUsers,
@@ -20,7 +20,14 @@ const loginUserService = async ({ email, password }) => {
         throw new Error("Invalid credentials");
     }
 
-    return user;
+    // 🔐 Generate token
+    const token = jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+    );
+
+    return { user, token };
 };
 
 module.exports.loginUserService = loginUserService;

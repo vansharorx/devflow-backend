@@ -67,11 +67,12 @@ exports.deleteUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     try {
-        const user = await loginUserService(req.body);
+        const { user, token } = await loginUserService(req.body);
 
         res.json({
             success: true,
             message: "Login successful",
+            token,
             data: user
         });
     } catch (err) {
