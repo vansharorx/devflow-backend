@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+const authenticate = require('../middleware/authMiddleware'); 
 const authorizeRoles = require('../middleware/roleMiddleware');
+
 const { body } = require('express-validator');
 const validate = require('../middleware/validationMiddleware');
 
@@ -19,17 +21,17 @@ const {
   searchIssues
 } = issueController;
 
+router.get('/search', authenticate, searchIssues);
+router.get('/filter', authenticate, getFilteredIssues);
 
-router.get('/search', searchIssues);
-router.get('/filter', getFilteredIssues);
-
-router.get('/', getIssues);
-router.get('/stats', getIssueStats);
-router.get('/detailed', getDetailedIssues);
-router.get('/:id/history', getIssueHistory);
+router.get('/', authenticate, getIssues);
+router.get('/stats', authenticate, getIssueStats);
+router.get('/detailed', authenticate, getDetailedIssues);
+router.get('/:id/history', authenticate, getIssueHistory);
 
 router.post(
   '/',
+  authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
   [
     body('title').notEmpty().withMessage('Title required'),
@@ -42,12 +44,14 @@ router.post(
 
 router.put(
   '/:id/status',
+  authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
   updateIssueStatus
 );
 
 router.put(
   '/:id/assign',
+  authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
   assignIssue
 );

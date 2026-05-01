@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+const authenticate = require('../middleware/authMiddleware'); // ✅ added
 const authorizeRoles = require('../middleware/roleMiddleware');
+
 const { body } = require('express-validator');
 const validate = require('../middleware/validationMiddleware');
 
@@ -11,12 +13,13 @@ const {
     getProjectAnalytics
 } = require('../controllers/projectController');
 
-router.get('/', getProjects);
+router.get('/', authenticate, getProjects);
 
-router.get('/analytics', getProjectAnalytics);
+router.get('/analytics', authenticate, getProjectAnalytics);
 
 router.post(
     '/',
+    authenticate,
     authorizeRoles("ADMIN", "MANAGER"),
     [
         body('name').notEmpty().withMessage('Project name required'),
