@@ -25,7 +25,7 @@ router.post(
     validate,
     createUser
 );
-
+router.post('/refresh', refreshToken);
 router.post('/login', loginUser);
 
 router.put('/:id', authenticate, updateUser);

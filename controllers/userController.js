@@ -1,7 +1,10 @@
+const jwt = require('jsonwebtoken');
+
 const {
     createUserService,
     getUsersService,
-    loginUserService
+    loginUserService,
+    refreshTokenService
 } = require('../services/userService');
 
 exports.getUsers = async (req, res) => {
@@ -67,18 +70,50 @@ exports.deleteUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
     try {
-        const { user, token } = await loginUserService(req.body);
+        const { user, accessToken, refreshToken } = await loginUserService(req.body);
 
         res.json({
             success: true,
             message: "Login successful",
-            token,
+            accessToken,
+            refreshToken,
             data: user
         });
     } catch (err) {
         res.status(400).json({
             success: false,
             message: err.message
+        });
+    }
+};
+
+exports.refreshToken = (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: "Refresh token required"
+        });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+        const newAccessToken = jwt.sign(
+            { id: decoded.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "15m" }
+        );
+
+        res.json({
+            success: true,
+            accessToken: newAccessToken
+        });
+    } catch (err) {
+        res.status(403).json({
+            success: false,
+            message: "Invalid refresh token"
         });
     }
 };

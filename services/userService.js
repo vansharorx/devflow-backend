@@ -6,28 +6,27 @@ const {
     findUserByEmail
 } = require('../models/userModel');
 
-
 const loginUserService = async ({ email, password }) => {
     const user = await findUserByEmail(email);
 
-    if (!user) {
-        throw new Error("User not found");
-    }
+    if (!user) throw new Error("User not found");
 
     const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid credentials");
 
-    if (!isMatch) {
-        throw new Error("Invalid credentials");
-    }
-
-    // 🔐 Generate token
-    const token = jwt.sign(
-        { id: user.id, role: user.role },
+    const accessToken = jwt.sign(
+        { id: user.id },
         process.env.JWT_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "15m" }
     );
 
-    return { user, token };
+    const refreshToken = jwt.sign(
+        { id: user.id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "7d" }
+    );
+
+    return { user, accessToken, refreshToken };
 };
 
 module.exports.loginUserService = loginUserService;
