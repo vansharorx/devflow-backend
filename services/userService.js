@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { saveRefreshToken } = require('../models/tokenModel');
+
 const {
     addUser,
     getAllUsers,
@@ -25,6 +27,8 @@ const loginUserService = async ({ email, password }) => {
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: "7d" }
     );
+
+    await saveRefreshToken(user.id, refreshToken);
 
     return { user, accessToken, refreshToken };
 };

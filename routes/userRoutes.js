@@ -8,7 +8,9 @@ const {
     createUser,
     updateUser,
     deleteUser,
-    loginUser
+    loginUser,
+    refreshToken,
+    logoutUser
 } = require('../controllers/userController');
 
 const { body } = require('express-validator');
@@ -25,9 +27,10 @@ router.post(
     validate,
     createUser
 );
-router.post('/refresh', refreshToken);
-router.post('/login', loginUser);
 
+router.post('/login', loginUser);
+router.post('/refresh', refreshToken); 
+router.post('/logout', logoutUser);
 router.put('/:id', authenticate, updateUser);
 router.delete('/:id', authenticate, deleteUser);
 

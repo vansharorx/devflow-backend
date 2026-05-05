@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-
+const { findToken } = require('../models/tokenModel');
+const { deleteToken } = require('../models/tokenModel');
 const {
     createUserService,
     getUsersService,
@@ -87,7 +88,8 @@ exports.loginUser = async (req, res) => {
     }
 };
 
-exports.refreshToken = (req, res) => {
+
+exports.refreshToken = async (req, res) => {
     const { token } = req.body;
 
     if (!token) {
@@ -98,6 +100,14 @@ exports.refreshToken = (req, res) => {
     }
 
     try {
+        const stored = await findToken(token);
+        if (!stored) {
+            return res.status(403).json({
+                success: false,
+                message: "Token not valid"
+            });
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
         const newAccessToken = jwt.sign(
@@ -114,6 +124,24 @@ exports.refreshToken = (req, res) => {
         res.status(403).json({
             success: false,
             message: "Invalid refresh token"
+        });
+    }
+};
+
+exports.logoutUser = async (req, res) => {
+    const { token } = req.body;
+
+    try {
+        await deleteToken(token);
+
+        res.json({
+            success: true,
+            message: "Logged out successfully"
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
         });
     }
 };
