@@ -2,7 +2,8 @@ require('dotenv').config();
 require('./config/db');
 const express = require('express');
 const app = express();
-
+const { apiLimiter } = require('./middleware/rateLimitMiddleware');
+app.use('/api', apiLimiter);
 app.use(express.json());
 
 
