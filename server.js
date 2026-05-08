@@ -3,9 +3,10 @@ require('./config/db');
 const express = require('express');
 const app = express();
 const { apiLimiter } = require('./middleware/rateLimitMiddleware');
+const morgan = require('morgan');
 app.use('/api', apiLimiter);
 app.use(express.json());
-
+app.use(morgan('dev'));
 
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
