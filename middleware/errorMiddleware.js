@@ -1,5 +1,12 @@
+const logger = require('../utils/logger');
+
 const errorHandler = (err, req, res, next) => {
-    console.error(err.stack);
+    logger.error({
+        message: err.message,
+        stack: err.stack,
+        url: req.originalUrl,
+        method: req.method
+    });
 
     res.status(500).json({
         success: false,
