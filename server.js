@@ -7,7 +7,7 @@ const morgan = require('morgan');
 app.use('/api', apiLimiter);
 app.use(express.json());
 app.use(morgan('dev'));
-
+app.use('/uploads', express.static('uploads'));
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const issueRoutes = require('./routes/issueRoutes');

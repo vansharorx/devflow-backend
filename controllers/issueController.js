@@ -25,20 +25,23 @@ exports.getIssues = async (req, res) => {
 };
 
 exports.createIssue = async (req, res) => {
-  try {
-    const issue = await createIssueService(req.body);
+    try {
+        const issue = await createIssueService({
+            ...req.body,
+            attachment: req.file ? req.file.filename : null
+        });
 
-    res.json({
-      success: true,
-      message: "Issue created",
-      data: issue
-    });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: err.message
-    });
-  }
+        res.json({
+            success: true,
+            message: "Issue created",
+            data: issue
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
 };
 
 exports.updateIssueStatus = async (req, res) => {

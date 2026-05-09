@@ -3,6 +3,7 @@ const router = express.Router();
 
 const authenticate = require('../middleware/authMiddleware'); 
 const authorizeRoles = require('../middleware/roleMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 
 const { body } = require('express-validator');
 const validate = require('../middleware/validationMiddleware');
@@ -33,6 +34,7 @@ router.post(
   '/',
   authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
+  upload.single('attachment'),
   [
     body('title').notEmpty().withMessage('Title required'),
     body('projectId').notEmpty().withMessage('Project ID required'),

@@ -27,7 +27,8 @@ const createIssueService = async (data) => {
     projectId,
     createdBy,
     assignedTo: null,
-    status: "OPEN"
+    status: "OPEN",
+    attachment: data.attachment || null
   };
 
   await addIssue(newIssue);
