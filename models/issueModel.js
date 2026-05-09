@@ -1,12 +1,11 @@
 const db = require('../config/db');
 
-
 const addIssue = (issue) => {
     return new Promise((resolve, reject) => {
         const sql = `
             INSERT INTO issues 
-            (id, title, description, project_id, created_by, assigned_to, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (id, title, description, project_id, created_by, assigned_to, status, attachment)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         db.query(
@@ -18,7 +17,8 @@ const addIssue = (issue) => {
                 issue.projectId,
                 issue.createdBy,
                 issue.assignedTo,
-                issue.status
+                issue.status,
+                issue.attachment
             ],
             (err, result) => {
                 if (err) return reject(err);
@@ -28,7 +28,6 @@ const addIssue = (issue) => {
     });
 };
 
-
 const getAllIssues = () => {
     return new Promise((resolve, reject) => {
         db.query("SELECT * FROM issues", (err, results) => {
@@ -37,7 +36,6 @@ const getAllIssues = () => {
         });
     });
 };
-
 
 const findIssueById = (id) => {
     return new Promise((resolve, reject) => {
@@ -51,7 +49,6 @@ const findIssueById = (id) => {
         );
     });
 };
-
 
 const updateIssueStatus = (id, status) => {
     return new Promise((resolve, reject) => {
@@ -78,6 +75,7 @@ const assignIssue = (id, userId) => {
         );
     });
 };
+
 const getDetailedIssues = () => {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -86,6 +84,7 @@ const getDetailedIssues = () => {
                 i.title,
                 i.description,
                 i.status,
+                i.attachment,
                 i.created_at,
                 p.name AS project_name,
                 u.name AS created_by_name,
@@ -102,6 +101,7 @@ const getDetailedIssues = () => {
         });
     });
 };
+
 const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) => {
     return new Promise((resolve, reject) => {
         const offset = (page - 1) * limit;
@@ -132,6 +132,7 @@ const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) 
         });
     });
 };
+
 module.exports = {
     addIssue,
     getAllIssues,
