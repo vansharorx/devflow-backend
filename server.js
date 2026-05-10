@@ -4,6 +4,8 @@ const express = require('express');
 const app = express();
 const { apiLimiter } = require('./middleware/rateLimitMiddleware');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 app.use('/api', apiLimiter);
 app.use(express.json());
 app.use(morgan('dev'));
@@ -19,6 +21,11 @@ app.use('/api/issues', issueRoutes);
 app.get('/health', (req, res) => {
     res.json({ message: "Server running" });
 });
+app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec)
+);
 app.use(errorHandler);
 const PORT = process.env.PORT || 2005;
 
