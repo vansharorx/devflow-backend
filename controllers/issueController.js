@@ -8,6 +8,9 @@ const {
   getFilteredIssuesService
 } = require('../services/issueService');
 
+const { sendAssignmentEmail } = require('../utils/mailer');
+const { findUserById } = require('../models/userModel');
+
 exports.getIssues = async (req, res) => {
   try {
     const issues = await getIssuesService();
@@ -64,22 +67,26 @@ exports.updateIssueStatus = async (req, res) => {
 };
 
 exports.assignIssue = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { userId } = req.body;
+    try {
+        const { id } = req.params;
+        const { userId } = req.body;
 
-    await assignIssueService(id, userId);
+        await assignIssue(id, userId);
+        const user = await findUserById(userId);
+        const issue = await findIssueById(id);
+        await sendAssignmentEmail(user.email, issue.title);
 
-    res.json({
-      success: true,
-      message: "Issue assigned"
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message
-    });
-  }
+        res.json({
+            success: true,
+            message: "Issue assigned and email sent"
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
 };
 
 exports.getIssueHistory = async (req, res) => {
