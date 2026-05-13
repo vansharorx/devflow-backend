@@ -1,6 +1,7 @@
 const {
     createProjectService,
-    getProjectsService
+    getProjectsService,
+    deleteProjectService
 } = require('../services/projectService');
 
 const cache = require('../config/cache');
@@ -61,6 +62,25 @@ exports.getProjectAnalytics = async (req, res) => {
             success: true,
             message: "Analytics endpoint working"
         });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
+
+exports.deleteProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await deleteProjectService(id);
+
+        res.json({
+            success: true,
+            message: "Project deleted successfully"
+        });
+
     } catch (err) {
         res.status(500).json({
             success: false,
