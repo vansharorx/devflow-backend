@@ -11,7 +11,7 @@
 const express = require('express');
 const router = express.Router();
 
-const authenticate = require('../middleware/authMiddleware'); // ✅ added
+const authenticate = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
 
 const { body } = require('express-validator');
@@ -20,7 +20,8 @@ const validate = require('../middleware/validationMiddleware');
 const {
     getProjects,
     createProject,
-    getProjectAnalytics
+    getProjectAnalytics,
+    deleteProject
 } = require('../controllers/projectController');
 
 router.get('/', authenticate, getProjects);
@@ -37,6 +38,13 @@ router.post(
     ],
     validate,
     createProject
+);
+
+router.delete(
+    '/:id',
+    authenticate,
+    authorizeRoles("ADMIN"),
+    deleteProject
 );
 
 module.exports = router;

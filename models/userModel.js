@@ -20,17 +20,20 @@ const addUser = (user) => {
 
 const getAllUsers = () => {
     return new Promise((resolve, reject) => {
-        db.query("SELECT id, name, email, role FROM users", (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
+        db.query(
+            "SELECT id, name, email, role FROM users WHERE is_deleted = FALSE",
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
     });
 };
 
 const findUserById = (id) => {
     return new Promise((resolve, reject) => {
         db.query(
-            "SELECT id, name, email, role FROM users WHERE id = ?",
+            "SELECT id, name, email, role FROM users WHERE id = ? AND is_deleted = FALSE",
             [id],
             (err, results) => {
                 if (err) return reject(err);
@@ -43,7 +46,7 @@ const findUserById = (id) => {
 const findUserByEmail = (email) => {
     return new Promise((resolve, reject) => {
         db.query(
-            "SELECT * FROM users WHERE email = ?",
+            "SELECT * FROM users WHERE email = ? AND is_deleted = FALSE",
             [email],
             (err, results) => {
                 if (err) return reject(err);
@@ -52,6 +55,7 @@ const findUserByEmail = (email) => {
         );
     });
 };
+
 module.exports = {
     addUser,
     getAllUsers,

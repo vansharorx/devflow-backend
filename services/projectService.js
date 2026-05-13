@@ -1,7 +1,8 @@
 const {
     addProject,
     getAllProjects,
-    findProjectById
+    findProjectById,
+    softDeleteProject
 } = require('../models/projectModel');
 
 const { findUserById } = require('../models/userModel');
@@ -29,8 +30,14 @@ const getProjectsService = async () => {
     return await getAllProjects();
 };
 
+const deleteProjectService = async (id) => {
+    return await softDeleteProject(id);
+};
+
+
 module.exports = {
     createProjectService,
     getProjectsService,
-    findProjectById
+    findProjectById,
+    deleteProjectService
 };

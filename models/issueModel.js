@@ -30,17 +30,20 @@ const addIssue = (issue) => {
 
 const getAllIssues = () => {
     return new Promise((resolve, reject) => {
-        db.query("SELECT * FROM issues", (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
+        db.query(
+            "SELECT * FROM issues WHERE is_deleted = FALSE",
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
     });
 };
 
 const findIssueById = (id) => {
     return new Promise((resolve, reject) => {
         db.query(
-            "SELECT * FROM issues WHERE id = ?",
+            "SELECT * FROM issues WHERE id = ? AND is_deleted = FALSE",
             [id],
             (err, results) => {
                 if (err) return reject(err);
@@ -93,6 +96,7 @@ const getDetailedIssues = () => {
             LEFT JOIN projects p ON i.project_id = p.id
             LEFT JOIN users u ON i.created_by = u.id
             LEFT JOIN users a ON i.assigned_to = a.id
+            WHERE i.is_deleted = FALSE
         `;
 
         db.query(sql, (err, results) => {
@@ -108,7 +112,7 @@ const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) 
 
         let sql = `
             SELECT * FROM issues
-            WHERE 1=1
+            WHERE is_deleted = FALSE
         `;
 
         const params = [];

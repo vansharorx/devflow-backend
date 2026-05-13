@@ -20,17 +20,20 @@ const addProject = (project) => {
 
 const getAllProjects = () => {
     return new Promise((resolve, reject) => {
-        db.query("SELECT * FROM projects", (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
+        db.query(
+            "SELECT * FROM projects WHERE is_deleted = FALSE",
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            }
+        );
     });
 };
 
 const findProjectById = (id) => {
     return new Promise((resolve, reject) => {
         db.query(
-            "SELECT * FROM projects WHERE id = ?",
+            "SELECT * FROM projects WHERE id = ? AND is_deleted = FALSE",
             [id],
             (err, results) => {
                 if (err) return reject(err);
@@ -40,8 +43,22 @@ const findProjectById = (id) => {
     });
 };
 
+const softDeleteProject = (id) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            "UPDATE projects SET is_deleted = TRUE WHERE id = ?",
+            [id],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
 module.exports = {
     addProject,
     getAllProjects,
-    findProjectById
+    findProjectById,
+    softDeleteProject
 };
