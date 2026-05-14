@@ -1,7 +1,8 @@
 const {
     createProjectService,
     getProjectsService,
-    deleteProjectService
+    deleteProjectService,
+    restoreProjectService
 } = require('../services/projectService');
 
 const cache = require('../config/cache');
@@ -79,6 +80,25 @@ exports.deleteProject = async (req, res) => {
         res.json({
             success: true,
             message: "Project deleted successfully"
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+};
+
+exports.restoreProject = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await restoreProjectService(id);
+
+        res.json({
+            success: true,
+            message: "Project restored successfully"
         });
 
     } catch (err) {

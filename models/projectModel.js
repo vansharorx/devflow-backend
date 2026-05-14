@@ -56,9 +56,22 @@ const softDeleteProject = (id) => {
     });
 };
 
+const restoreProject = (id) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            "UPDATE projects SET is_deleted = FALSE WHERE id = ?",
+            [id],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
 module.exports = {
     addProject,
     getAllProjects,
     findProjectById,
-    softDeleteProject
+    softDeleteProject,
+    restoreProject
 };

@@ -21,7 +21,8 @@ const {
     getProjects,
     createProject,
     getProjectAnalytics,
-    deleteProject
+    deleteProject,
+    restoreProject
 } = require('../controllers/projectController');
 
 router.get('/', authenticate, getProjects);
@@ -46,5 +47,10 @@ router.delete(
     authorizeRoles("ADMIN"),
     deleteProject
 );
-
+router.put(
+    '/:id/restore',
+    authenticate,
+    authorizeRoles("ADMIN"),
+    restoreProject
+);
 module.exports = router;
