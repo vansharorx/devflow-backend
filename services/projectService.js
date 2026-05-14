@@ -2,7 +2,8 @@ const {
     addProject,
     getAllProjects,
     findProjectById,
-    softDeleteProject
+    softDeleteProject,
+    restoreProject
 } = require('../models/projectModel');
 
 const { findUserById } = require('../models/userModel');
@@ -34,10 +35,14 @@ const deleteProjectService = async (id) => {
     return await softDeleteProject(id);
 };
 
+const restoreProjectService = async (id) => {
+    return await restoreProject(id);
+};
 
 module.exports = {
     createProjectService,
     getProjectsService,
     findProjectById,
-    deleteProjectService
+    deleteProjectService,
+    restoreProjectService
 };
