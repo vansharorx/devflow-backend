@@ -10,6 +10,7 @@ const {
 
 const { sendAssignmentEmail } = require('../utils/mailer');
 const { findUserById } = require('../models/userModel');
+const { createActivityService } = require('../services/activityService');
 
 exports.getIssues = async (req, res) => {
   try {
@@ -32,6 +33,14 @@ exports.createIssue = async (req, res) => {
         const issue = await createIssueService({
             ...req.body,
             attachment: req.file ? req.file.filename : null
+        });
+
+        // Activity log
+        await createActivityService({
+            action: 'Issue Created',
+            entityType: 'ISSUE',
+            entityId: issue.id,
+            performedBy: req.user.id
         });
 
         res.json({
@@ -71,9 +80,11 @@ exports.assignIssue = async (req, res) => {
         const { id } = req.params;
         const { userId } = req.body;
 
-        await assignIssue(id, userId);
+        await assignIssueService(id, userId);
+
         const user = await findUserById(userId);
         const issue = await findIssueById(id);
+
         await sendAssignmentEmail(user.email, issue.title);
 
         res.json({
