@@ -12,6 +12,10 @@ const { sendAssignmentEmail } = require('../utils/mailer');
 const { findUserById } = require('../models/userModel');
 const { createActivityService } = require('../services/activityService');
 
+const {
+    createNotificationService
+} = require('../services/notificationService');
+
 exports.getIssues = async (req, res) => {
   try {
     const issues = await getIssuesService();
@@ -86,6 +90,11 @@ exports.assignIssue = async (req, res) => {
         const issue = await findIssueById(id);
 
         await sendAssignmentEmail(user.email, issue.title);
+
+        await createNotificationService({
+            userId,
+            message: `You were assigned issue: ${issue.title}`
+        });
 
         res.json({
             success: true,

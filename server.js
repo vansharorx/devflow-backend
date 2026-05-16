@@ -14,6 +14,7 @@ app.use(morgan('dev'));
 app.use('/uploads', express.static('uploads'));
 app.use('/api/activities', activityRoutes);
 app.use('/api/comments', commentRoutes);
+const notificationRoutes = require('./routes/notificationRoutes');
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const issueRoutes = require('./routes/issueRoutes');
@@ -23,6 +24,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/issues', issueRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.get('/health', (req, res) => {
     res.json({ message: "Server running" });
 });
