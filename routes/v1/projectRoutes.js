@@ -11,11 +11,11 @@
 const express = require('express');
 const router = express.Router();
 
-const authenticate = require('../middleware/authMiddleware');
-const authorizeRoles = require('../middleware/roleMiddleware');
+const authenticate = require('../../middleware/authMiddleware');
+const authorizeRoles = require('../../middleware/roleMiddleware');
 
 const { body } = require('express-validator');
-const validate = require('../middleware/validationMiddleware');
+const validate = require('../../middleware/validationMiddleware');
 
 const {
     getProjects,
@@ -23,7 +23,7 @@ const {
     getProjectAnalytics,
     deleteProject,
     restoreProject
-} = require('../controllers/projectController');
+} = require('../../controllers/projectController');
 
 router.get('/', authenticate, getProjects);
 

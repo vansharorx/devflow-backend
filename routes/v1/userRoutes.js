@@ -22,8 +22,8 @@
 const express = require('express');
 const router = express.Router();
 
-const authenticate = require('../middleware/authMiddleware');
-const { authLimiter } = require('../middleware/rateLimitMiddleware');
+const authenticate = require('../../middleware/authMiddleware');
+const { authLimiter } = require('../../middleware/rateLimitMiddleware');
 
 const {
     getUsers,
@@ -33,10 +33,10 @@ const {
     loginUser,
     refreshToken,
     logoutUser
-} = require('../controllers/userController');
+} = require('../../controllers/userController');
 
 const { body } = require('express-validator');
-const validate = require('../middleware/validationMiddleware');
+const validate = require('../../middleware/validationMiddleware');
 
 router.get('/', authenticate, getUsers);
 

@@ -12,12 +12,12 @@ const options = {
 
         servers: [
             {
-                url: 'http://localhost:2005'
+                url: 'http://localhost:2005/api/v1'
             }
         ]
     },
 
-    apis: ['./routes/*.js']
+    apis: ['./routes/v1/*.js']
 };
 
 const swaggerSpec = swaggerJsDoc(options);
