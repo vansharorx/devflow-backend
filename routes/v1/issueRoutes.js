@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-const authenticate = require('../middleware/authMiddleware'); 
-const authorizeRoles = require('../middleware/roleMiddleware');
-const upload = require('../middleware/uploadMiddleware');
+const authenticate = require('../../middleware/authMiddleware'); 
+const authorizeRoles = require('../../middleware/roleMiddleware');
+const upload = require('../../middleware/uploadMiddleware');
 
 const { body } = require('express-validator');
-const validate = require('../middleware/validationMiddleware');
+const validate = require('../../middleware/validationMiddleware');
 
-const issueController = require('../controllers/issueController');
+const issueController = require('../../controllers/issueController');
 
 const {
   getIssues,
