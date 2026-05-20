@@ -1,11 +1,11 @@
 const mysql = require('mysql2');
-require('dotenv').config();
+const config = require('./index');
 
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    host: config.db.host,
+    user: config.db.user,
+    password: config.db.password,
+    database: config.db.database
 });
 
 db.connect((err) => {
