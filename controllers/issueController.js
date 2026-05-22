@@ -39,7 +39,6 @@ exports.createIssue = async (req, res) => {
             attachment: req.file ? req.file.filename : null
         });
 
-        // Activity log
         await createActivityService({
             action: 'Issue Created',
             entityType: 'ISSUE',
@@ -94,6 +93,14 @@ exports.assignIssue = async (req, res) => {
         await createNotificationService({
             userId,
             message: `You were assigned issue: ${issue.title}`
+        });
+
+        const io = req.app.get('io');
+
+        io.emit('issueAssigned', {
+            message: `Issue assigned: ${issue.title}`,
+            issueId: issue.id,
+            assignedTo: user.name
         });
 
         res.json({

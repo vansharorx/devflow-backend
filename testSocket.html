@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket Test</title>
+</head>
+
+<body>
+    <h1>Socket.IO Test</h1>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <script>
+        const socket = io('http://localhost:2005');
+
+        socket.on('connect', () => {
+            console.log('Connected to socket server');
+        });
+
+        socket.on('issueAssigned', (data) => {
+            console.log('Real-time event:', data);
+
+            alert(data.message);
+        });
+    </script>
+</body>
+</html>
