@@ -30,6 +30,7 @@ const { apiLimiter } = require('./middleware/rateLimitMiddleware');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
+const startCleanupJob = require('./jobs/cleanupJob');
 
 app.use('/api', apiLimiter);
 app.use(express.json());
@@ -67,6 +68,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 2005;
 
+startCleanupJob();
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
