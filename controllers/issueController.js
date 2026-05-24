@@ -5,7 +5,8 @@ const {
   assignIssue: assignIssueService,
   findIssueById,
   getDetailedIssuesService,
-  getFilteredIssuesService
+  getFilteredIssuesService,
+  transactionalAssignIssue
 } = require('../services/issueService');
 
 const { sendAssignmentEmail } = require('../utils/mailer');
@@ -80,35 +81,32 @@ exports.updateIssueStatus = async (req, res) => {
 
 exports.assignIssue = async (req, res) => {
     try {
+
         const { id } = req.params;
         const { userId } = req.body;
 
-        await assignIssueService(id, userId);
-
-        const user = await findUserById(userId);
         const issue = await findIssueById(id);
 
-        await sendAssignmentEmail(user.email, issue.title);
+        if (!issue) {
+            return res.status(404).json({
+                success: false,
+                message: "Issue not found"
+            });
+        }
 
-        await createNotificationService({
+        await transactionalAssignIssue({
+            issueId: id,
             userId,
-            message: `You were assigned issue: ${issue.title}`
-        });
-
-        const io = req.app.get('io');
-
-        io.emit('issueAssigned', {
-            message: `Issue assigned: ${issue.title}`,
-            issueId: issue.id,
-            assignedTo: user.name
+            issueTitle: issue.title
         });
 
         res.json({
             success: true,
-            message: "Issue assigned and email sent"
+            message: "Issue assigned successfully"
         });
 
     } catch (err) {
+
         res.status(500).json({
             success: false,
             message: err.message
