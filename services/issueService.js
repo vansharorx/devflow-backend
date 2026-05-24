@@ -1,3 +1,5 @@
+const db = require('../config/db');
+
 const {
   addIssue,
   getAllIssues,
@@ -47,6 +49,71 @@ const getFilteredIssuesService = async (query) => {
   return await getPaginatedFilteredIssues(query);
 };
 
+const transactionalAssignIssue = async ({
+  issueId,
+  userId,
+  issueTitle
+}) => {
+
+  const connection = await db.promise().getConnection();
+
+  try {
+
+    await connection.beginTransaction();
+
+    await connection.query(
+      `
+      UPDATE issues
+      SET assigned_to = ?
+      WHERE id = ?
+      `,
+      [userId, issueId]
+    );
+
+    await connection.query(
+      `
+      INSERT INTO notifications
+      (id, user_id, message)
+      VALUES (?, ?, ?)
+      `,
+      [
+        Date.now(),
+        userId,
+        `You were assigned issue: ${issueTitle}`
+      ]
+    );
+
+    await connection.query(
+      `
+      INSERT INTO activities
+      (id, action, entity_type, entity_id, performed_by)
+      VALUES (?, ?, ?, ?, ?)
+      `,
+      [
+        Date.now() + 1,
+        'Issue Assigned',
+        'ISSUE',
+        issueId,
+        userId
+      ]
+    );
+
+    await connection.commit();
+
+    return true;
+
+  } catch (err) {
+
+    await connection.rollback();
+
+    throw err;
+
+  } finally {
+
+    connection.release();
+  }
+};
+
 module.exports = {
   createIssueService,
   getIssuesService,
@@ -54,5 +121,6 @@ module.exports = {
   getFilteredIssuesService,
   updateIssueStatus,
   assignIssue,
+  transactionalAssignIssue,
   findIssueById
 };
