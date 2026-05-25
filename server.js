@@ -1,74 +1,41 @@
-require('dotenv').config();
-require('./config/env/env');
-require('./config/db');
-
-const express = require('express');
 const http = require('http');
+
 const { Server } = require('socket.io');
 
-const app = express();
+const app = require('./app');
+
+const startCleanupJob = require('./jobs/cleanupJob');
+
+const PORT = process.env.PORT || 2005;
 
 const server = http.createServer(app);
 
+/* Socket.IO */
 const io = new Server(server, {
     cors: {
-        origin: "*"
+        origin: '*'
     }
 });
 
+/* Socket Events */
 io.on('connection', (socket) => {
+
     console.log('User connected:', socket.id);
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });
+
 });
 
+/* Make io available globally */
 app.set('io', io);
 
-const { apiLimiter } = require('./middleware/rateLimitMiddleware');
-const morgan = require('morgan');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger');
-const startCleanupJob = require('./jobs/cleanupJob');
-
-app.use('/api', apiLimiter);
-app.use(express.json());
-app.use(morgan('dev'));
-app.use('/uploads', express.static('uploads'));
-
-const notificationRoutes = require('./routes/v1/notificationRoutes');
-const userRoutes = require('./routes/v1/userRoutes');
-const projectRoutes = require('./routes/v1/projectRoutes');
-const issueRoutes = require('./routes/v1/issueRoutes');
-const activityRoutes = require('./routes/v1/activityRoutes');
-const commentRoutes = require('./routes/v1/commentRoutes');
-const dashboardRoutes = require('./routes/v1/dashboardRoutes');
-
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/projects', projectRoutes);
-app.use('/api/v1/issues', issueRoutes);
-app.use('/api/v1/dashboard', dashboardRoutes);
-app.use('/api/v1/notifications', notificationRoutes);
-app.use('/api/v1/activities', activityRoutes);
-app.use('/api/v1/comments', commentRoutes);
-
-app.get('/health', (req, res) => {
-    res.json({ message: "Server running" });
-});
-
-app.use(
-    '/api-docs',
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec)
-);
-
-const errorHandler = require('./middleware/errorMiddleware');
-app.use(errorHandler);
-
-const PORT = process.env.PORT || 2005;
-
+/* Start Cron Jobs */
 startCleanupJob();
+
 server.listen(PORT, () => {
+
     console.log(`Server running on port ${PORT}`);
+
 });
