@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+
+  backend:
+    build: .
+
+    ports:
+      - "2005:2005"
+
+    depends_on:
+      - mysql
+
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: Ramramji@123
+      DB_NAME: devflow
+
+  mysql:
+    image: mysql:8
+
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: Ramramji@123
+      MYSQL_DATABASE: devflow
+
+    ports:
+      - "3307:3306"
