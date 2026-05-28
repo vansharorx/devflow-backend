@@ -17,7 +17,8 @@ const app = express();
 /* Middlewares */
 app.use(express.json());
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
+app.use(morgan('combined'));
 
 app.use('/uploads', express.static('uploads'));
 
@@ -31,6 +32,7 @@ const issueRoutes = require('./routes/v1/issueRoutes');
 const activityRoutes = require('./routes/v1/activityRoutes');
 const commentRoutes = require('./routes/v1/commentRoutes');
 const dashboardRoutes = require('./routes/v1/dashboardRoutes');
+const healthRoutes = require('./routes/v1/healthRoutes');
 
 app.use('/api/v1/users', userRoutes);
 
@@ -45,6 +47,9 @@ app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/activities', activityRoutes);
 
 app.use('/api/v1/comments', commentRoutes);
+
+app.use('/api/v1/health', healthRoutes);
+
 
 /* Health Route */
 app.get('/health', (req, res) => {
