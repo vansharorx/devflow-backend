@@ -1,4 +1,5 @@
 require('dotenv').config();
+const cors = require('cors');
 
 require('./config/env/env');
 require('./config/db');
@@ -6,6 +7,7 @@ require('./config/db');
 const express = require('express');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
+const helmet = require('helmet');
 
 const swaggerSpec = require('./config/swagger');
 
@@ -14,10 +16,18 @@ const errorHandler = require('./middleware/errorMiddleware');
 
 const app = express();
 
-/* Middlewares */
-app.use(express.json());
+/* Security */
+app.disable('x-powered-by');
 
-// app.use(morgan('dev'));
+/* Middlewares */
+app.use(cors());
+
+app.use(express.json({
+    limit: '1mb'
+}));
+
+app.use(helmet());
+
 app.use(morgan('combined'));
 
 app.use('/uploads', express.static('uploads'));
@@ -50,19 +60,18 @@ app.use('/api/v1/comments', commentRoutes);
 
 app.use('/api/v1/health', healthRoutes);
 
-
 /* Health Route */
 app.get('/health', (req, res) => {
-    res.json({
-        message: 'Server running'
-    });
+res.json({
+message: 'Server running'
+});
 });
 
 /* Swagger */
 app.use(
-    '/api-docs',
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec)
+'/api-docs',
+swaggerUi.serve,
+swaggerUi.setup(swaggerSpec)
 );
 
 /* Error Handler */
