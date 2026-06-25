@@ -7,7 +7,8 @@ const {
   updateIssueStatus,
   assignIssue,
   getDetailedIssues,
-  getPaginatedFilteredIssues
+  getPaginatedFilteredIssues,
+  deleteIssue
 } = require('../models/issueModel');
 
 const { findProjectById } = require('../models/projectModel');
@@ -104,14 +105,20 @@ const transactionalAssignIssue = async ({
 
   } catch (err) {
 
-    await connection.rollback();
+  await connection.rollback();
 
-    throw err;
+  console.error("Transaction Error:", err);
+
+  throw err;
 
   } finally {
 
     connection.release();
   }
+};
+
+const deleteIssueService = async (id) => {
+  return await deleteIssue(id);
 };
 
 module.exports = {
@@ -122,5 +129,6 @@ module.exports = {
   updateIssueStatus,
   assignIssue,
   transactionalAssignIssue,
-  findIssueById
+  findIssueById,
+  deleteIssueService
 };

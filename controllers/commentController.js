@@ -6,7 +6,7 @@ const {
 exports.createComment = async (req, res) => {
     try {
         const { issueId, comment } = req.body;
-
+        console.log("BODY:", req.body);
         const newComment = await createCommentService({
             issueId,
             userId: req.user.id,

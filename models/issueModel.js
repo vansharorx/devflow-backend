@@ -193,6 +193,20 @@ const getPaginatedFilteredIssues = ({
     });
 };
 
+const deleteIssue = (id) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            UPDATE issues
+            SET is_deleted = TRUE
+            WHERE id = ?
+        `;
+
+        db.query(sql, [id], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
 module.exports = {
     addIssue,
     getAllIssues,
@@ -200,5 +214,6 @@ module.exports = {
     updateIssueStatus,
     assignIssue,
     getDetailedIssues,
-    getPaginatedFilteredIssues
+    getPaginatedFilteredIssues,
+    deleteIssue
 };

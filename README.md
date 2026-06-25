@@ -1,3 +1,6 @@
+# Devflow
+Enterprise-grade Issue Tracking System built using Node.js, Express.js, MySQL, JWT Authentication, Docker, Socket.IO and GitHub Actions.
+
 ## Features
 
 - JWT Authentication

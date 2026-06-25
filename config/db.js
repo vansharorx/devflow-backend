@@ -1,34 +1,26 @@
-const mysql = require('mysql2');
-const config = require('./index');
+const mysql = require("mysql2");
 
-let db;
+const config = require("./index");
 
-const connectDB = () => {
+const db = mysql.createPool({
+    host: config.db.host,
+    user: config.db.user,
+    password: config.db.password,
+    database: config.db.database,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 
-    db = mysql.createConnection({
-        host: config.db.host,
-        user: config.db.user,
-        password: config.db.password,
-        database: config.db.database
-    });
+db.getConnection((err, connection) => {
 
-    db.connect((err) => {
+    if (err) {
+        console.log("DB connection failed:", err);
+        return;
+    }
 
-        if (err) {
+    console.log("MySQL connected");
+    connection.release();
+});
 
-            console.log(
-                "DB not ready. Retrying in 5 seconds..."
-            );
-
-            setTimeout(connectDB, 5000);
-
-            return;
-        }
-
-        console.log("MySQL connected");
-    });
-};
-
-connectDB();
-
-module.exports = () => db;
+module.exports = db;

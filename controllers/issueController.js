@@ -6,7 +6,8 @@ const {
   findIssueById,
   getDetailedIssuesService,
   getFilteredIssuesService,
-  transactionalAssignIssue
+  transactionalAssignIssue,
+  deleteIssueService
 } = require('../services/issueService');
 
 const { sendAssignmentEmail } = require('../utils/mailer');
@@ -37,7 +38,7 @@ exports.createIssue = async (req, res) => {
     try {
         const issue = await createIssueService({
             ...req.body,
-            attachment: req.file ? req.file.filename : null
+            createdBy: req.user.id
         });
 
         await createActivityService({
@@ -100,12 +101,17 @@ exports.assignIssue = async (req, res) => {
             issueTitle: issue.title
         });
 
+        const io = req.app.get("io");
+        io.emit("notification");
+
         res.json({
             success: true,
             message: "Issue assigned successfully"
         });
 
     } catch (err) {
+
+        console.error(err);
 
         res.status(500).json({
             success: false,
@@ -217,4 +223,26 @@ exports.searchIssues = async (req, res) => {
       message: err.message
     });
   }
+};
+
+exports.deleteIssue = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+
+        await deleteIssueService(id);
+
+        res.json({
+            success: true,
+            message: "Issue deleted successfully"
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            success: false,
+            message: err.message
+        });
+
+    }
 };
