@@ -4,6 +4,10 @@ const { findUserById } = require('../models/userModel');
 const authenticate = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
+        console.log("Authorization Header:", authHeader);
+
+        const token = authHeader.split(" ")[1];
+        console.log("Token:", token);
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).json({
@@ -11,8 +15,6 @@ const authenticate = async (req, res, next) => {
                 message: "No token provided"
             });
         }
-
-        const token = authHeader.split(" ")[1];
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -26,9 +28,11 @@ const authenticate = async (req, res, next) => {
         }
 
         req.user = user; 
-
+        console.log("Authenticated User:", req.user);
         next();
     } catch (err) {
+        console.log(err);
+
         return res.status(401).json({
             success: false,
             message: "Invalid or expired token"

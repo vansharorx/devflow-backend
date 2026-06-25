@@ -3,22 +3,28 @@ const db = require('../config/db');
 exports.getDashboardStats = async (req, res) => {
     try {
 
-        // Total counts
-        const [[userCount]] = await db.promise().query(
-            `SELECT COUNT(*) AS totalUsers FROM users WHERE is_deleted = FALSE`
-        );
+        // Total Counts
+        const [[userCount]] = await db.promise().query(`
+            SELECT COUNT(*) AS totalUsers
+            FROM users
+            WHERE is_deleted = FALSE
+        `);
 
-        const [[projectCount]] = await db.promise().query(
-            `SELECT COUNT(*) AS totalProjects FROM projects WHERE is_deleted = FALSE`
-        );
+        const [[projectCount]] = await db.promise().query(`
+            SELECT COUNT(*) AS totalProjects
+            FROM projects
+            WHERE is_deleted = FALSE
+        `);
 
-        const [[issueCount]] = await db.promise().query(
-            `SELECT COUNT(*) AS totalIssues FROM issues WHERE is_deleted = FALSE`
-        );
+        const [[issueCount]] = await db.promise().query(`
+            SELECT COUNT(*) AS totalIssues
+            FROM issues
+            WHERE is_deleted = FALSE
+        `);
 
-        // Issue status metrics 
+        // Issue Status Counts
         const [statusMetrics] = await db.promise().query(`
-            SELECT 
+            SELECT
                 status,
                 COUNT(*) AS count
             FROM issues
@@ -26,9 +32,33 @@ exports.getDashboardStats = async (req, res) => {
             GROUP BY status
         `);
 
-        // Top active users 
+        const issuesByStatus = {
+            open: 0,
+            inProgress: 0,
+            closed: 0
+        };
+
+        statusMetrics.forEach(item => {
+
+            const status = item.status.toLowerCase();
+
+            if (status === "open") {
+                issuesByStatus.open = Number(item.count);
+            }
+
+            else if (status === "in progress") {
+                issuesByStatus.inProgress = Number(item.count);
+            }
+
+            else if (status === "closed") {
+                issuesByStatus.closed = Number(item.count);
+            }
+
+        });
+
+        // Top Users
         const [topUsers] = await db.promise().query(`
-            SELECT 
+            SELECT
                 u.id,
                 u.name,
                 COUNT(i.id) AS totalIssuesCreated
@@ -41,9 +71,9 @@ exports.getDashboardStats = async (req, res) => {
             LIMIT 5
         `);
 
-        // Most active projects
+        // Top Projects
         const [topProjects] = await db.promise().query(`
-            SELECT 
+            SELECT
                 p.id,
                 p.name,
                 COUNT(i.id) AS totalIssues
@@ -58,7 +88,6 @@ exports.getDashboardStats = async (req, res) => {
 
         res.json({
             success: true,
-
             data: {
                 totals: {
                     users: userCount.totalUsers,
@@ -66,7 +95,7 @@ exports.getDashboardStats = async (req, res) => {
                     issues: issueCount.totalIssues
                 },
 
-                issueStatus: statusMetrics,
+                issuesByStatus,
 
                 topUsers,
 
@@ -75,9 +104,11 @@ exports.getDashboardStats = async (req, res) => {
         });
 
     } catch (err) {
+
         res.status(500).json({
             success: false,
             message: err.message
         });
+
     }
 };

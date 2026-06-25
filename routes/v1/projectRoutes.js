@@ -35,7 +35,7 @@ router.post(
     authorizeRoles("ADMIN", "MANAGER"),
     [
         body('name').notEmpty().withMessage('Project name required'),
-        body('createdBy').notEmpty().withMessage('Creator required')
+        //body('createdBy').notEmpty().withMessage('Creator required')
     ],
     validate,
     createProject
@@ -44,7 +44,7 @@ router.post(
 router.delete(
     '/:id',
     authenticate,
-    authorizeRoles("ADMIN"),
+    authorizeRoles("ADMIN","MANAGER"),
     deleteProject
 );
 router.put(

@@ -19,12 +19,12 @@ const {
   getIssueStats,
   getDetailedIssues,
   getFilteredIssues,
-  searchIssues
+  searchIssues,
+  deleteIssue
 } = issueController;
 
 router.get('/search', authenticate, searchIssues);
 router.get('/filter', authenticate, getFilteredIssues);
-
 router.get('/', authenticate, getIssues);
 router.get('/stats', authenticate, getIssueStats);
 router.get('/detailed', authenticate, getDetailedIssues);
@@ -37,8 +37,7 @@ router.post(
   upload.single('attachment'),
   [
     body('title').notEmpty().withMessage('Title required'),
-    body('projectId').notEmpty().withMessage('Project ID required'),
-    body('createdBy').notEmpty().withMessage('User ID required')
+    body('projectId').notEmpty().withMessage('Project ID required')
   ],
   validate,
   createIssue
@@ -56,6 +55,13 @@ router.put(
   authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
   assignIssue
+);
+
+router.delete(
+  '/:id',
+  authenticate,
+  authorizeRoles("ADMIN", "MANAGER"),
+  deleteIssue
 );
 
 module.exports = router;

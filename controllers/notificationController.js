@@ -23,9 +23,13 @@ exports.getNotifications = async (req, res) => {
 
 exports.markAsRead = async (req, res) => {
     try {
+
         const { id } = req.params;
 
         await markReadService(id);
+
+        const io = req.app.get("io");
+        io.emit("notification");
 
         res.json({
             success: true,

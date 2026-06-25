@@ -40,7 +40,10 @@ exports.getProjects = async (req, res) => {
 
 exports.createProject = async (req, res) => {
     try {
-        const project = await createProjectService(req.body);
+        const project = await createProjectService({
+            ...req.body,
+            createdBy: req.user.id
+        });
 
         cache.del('projects');
 
@@ -77,6 +80,8 @@ exports.deleteProject = async (req, res) => {
 
         await deleteProjectService(id);
 
+        cache.del('projects');
+
         res.json({
             success: true,
             message: "Project deleted successfully"
@@ -96,6 +101,8 @@ exports.restoreProject = async (req, res) => {
 
         await restoreProjectService(id);
 
+        cache.del('projects');
+        
         res.json({
             success: true,
             message: "Project restored successfully"
