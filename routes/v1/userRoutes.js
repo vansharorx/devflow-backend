@@ -32,7 +32,8 @@ const {
     deleteUser,
     loginUser,
     refreshToken,
-    logoutUser
+    logoutUser,
+    changePassword
 } = require('../../controllers/userController');
 
 const { body } = require('express-validator');
@@ -56,6 +57,12 @@ router.post('/login', authLimiter, loginUser);
 router.post('/refresh', refreshToken);
 
 router.post('/logout', logoutUser);
+
+router.put(
+    "/change-password",
+    authenticate,
+    changePassword
+);
 
 router.put('/:id', authenticate, updateUser);
 

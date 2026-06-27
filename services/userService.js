@@ -5,7 +5,9 @@ const { saveRefreshToken } = require('../models/tokenModel');
 const {
     addUser,
     getAllUsers,
-    findUserByEmail
+    findUserByEmail,
+    findUserWithPasswordById,
+    updatePassword
 } = require('../models/userModel');
 
 const loginUserService = async ({ email, password }) => {
@@ -66,8 +68,53 @@ const getUsersService = async () => {
     return await getAllUsers();
 };
 
+const changePasswordService = async (
+    userId,
+    currentPassword,
+    newPassword
+) => {
+
+    const user = await findUserWithPasswordById(userId);
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    const isMatch = await bcrypt.compare(
+        currentPassword,
+        user.password
+    );
+
+    if (!isMatch) {
+        throw new Error("Current password is incorrect");
+    }
+
+    const isSamePassword = await bcrypt.compare(
+        newPassword,
+        user.password
+    );
+
+    if (isSamePassword) {
+        throw new Error(
+            "New password cannot be the same as the current password"
+        );
+    }
+    
+    const hashedPassword = await bcrypt.hash(
+        newPassword,
+        10
+    );
+
+    await updatePassword(
+        userId,
+        hashedPassword
+    );
+
+};
+
 module.exports = {
     createUserService,
     getUsersService,
-    loginUserService
+    loginUserService,
+    changePasswordService
 };

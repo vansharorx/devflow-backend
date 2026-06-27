@@ -56,9 +56,36 @@ const findUserByEmail = (email) => {
     });
 };
 
+const findUserWithPasswordById = (id) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            "SELECT * FROM users WHERE id = ? AND is_deleted = FALSE",
+            [id],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]);
+            }
+        );
+    });
+};
+
+const updatePassword = (id, hashedPassword) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            "UPDATE users SET password = ? WHERE id = ?",
+            [hashedPassword, id],
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
 module.exports = {
     addUser,
     getAllUsers,
     findUserById,
-    findUserByEmail
+    findUserByEmail,
+    findUserWithPasswordById,
+    updatePassword
 };
