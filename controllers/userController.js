@@ -5,7 +5,6 @@ const {
     createUserService,
     getUsersService,
     loginUserService,
-    refreshTokenService,
     changePasswordService
 } = require('../services/userService');
 
@@ -91,6 +90,7 @@ exports.loginUser = async (req, res) => {
 
 
 exports.refreshToken = async (req, res) => {
+
     const { token } = req.body;
 
     if (!token) {
@@ -101,7 +101,9 @@ exports.refreshToken = async (req, res) => {
     }
 
     try {
+
         const stored = await findToken(token);
+
         if (!stored) {
             return res.status(403).json({
                 success: false,
@@ -109,24 +111,50 @@ exports.refreshToken = async (req, res) => {
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_REFRESH_SECRET
+        );
+
+        const { findUserById } =
+            require("../models/userModel");
+
+        const user = await findUserById(decoded.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
 
         const newAccessToken = jwt.sign(
-            { id: decoded.id },
+            {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            },
             process.env.JWT_SECRET,
-            { expiresIn: "15m" }
+            {
+                expiresIn: "20s"
+            }
         );
 
         res.json({
             success: true,
             accessToken: newAccessToken
         });
+
     } catch (err) {
+
         res.status(403).json({
             success: false,
             message: "Invalid refresh token"
         });
+
     }
+
 };
 
 exports.logoutUser = async (req, res) => {
