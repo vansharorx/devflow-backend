@@ -137,7 +137,7 @@ exports.refreshToken = async (req, res) => {
             },
             process.env.JWT_SECRET,
             {
-                expiresIn: "20s"
+                expiresIn: "15m"
             }
         );
 
