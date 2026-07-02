@@ -193,6 +193,34 @@ const updatePassword = (
 
 };
 
+const verifyUser = (id) => {
+
+    return new Promise((resolve, reject) => {
+
+        db.query(
+
+            `
+            UPDATE users
+            SET is_verified = TRUE
+            WHERE id = ?
+            `,
+
+            [id],
+
+            (err, result) => {
+
+                if (err) return reject(err);
+
+                resolve(result);
+
+            }
+
+        );
+
+    });
+
+};
+
 module.exports = {
 
     addUser,
@@ -200,6 +228,6 @@ module.exports = {
     findUserById,
     findUserByEmail,
     findUserWithPasswordById,
-    updatePassword
-
+    updatePassword,
+    verifyUser
 };

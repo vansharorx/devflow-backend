@@ -44,10 +44,13 @@ const commentRoutes = require('./routes/v1/commentRoutes');
 const dashboardRoutes = require('./routes/v1/dashboardRoutes');
 const healthRoutes = require('./routes/v1/healthRoutes');
 const passwordRoutes = require('./routes/v1/passwordRoutes');
+const emailVerificationRoutes = require("./routes/v1/emailVerificationRoutes");
 
 app.use('/api/v1/users', userRoutes);
 
 app.use('/api/v1/password', passwordRoutes);
+
+app.use('/api/v1/email-verification', emailVerificationRoutes);
 
 app.use('/api/v1/projects', projectRoutes);
 

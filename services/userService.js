@@ -1,6 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { saveRefreshToken } = require('../models/tokenModel');
+const crypto = require("crypto");
+
+const {
+    sendVerificationEmailService
+} = require("./emailVerificationService");
 
 const {
     addUser,
@@ -13,10 +18,35 @@ const {
 const loginUserService = async ({ email, password }) => {
     const user = await findUserByEmail(email);
 
-    if (!user) throw new Error("User not found");
+    if (!user) {
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("Invalid credentials");
+        throw new Error(
+            "User not found"
+        );
+
+    }
+
+    if (!user.is_verified) {
+
+        throw new Error(
+            "Please verify your email before logging in."
+        );
+
+    }
+
+    const isMatch =
+        await bcrypt.compare(
+            password,
+            user.password
+        );
+
+    if (!isMatch) {
+
+        throw new Error(
+            "Invalid credentials"
+        );
+
+    }
 
     const accessToken = jwt.sign(
     {
@@ -44,24 +74,48 @@ const loginUserService = async ({ email, password }) => {
 
 module.exports.loginUserService = loginUserService;
 const createUserService = async (data) => {
-    const { name, email, password } = data;
 
-    if (!password) {
-        throw new Error("Password is required");
-    }
+    const {
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = {
-        id: Date.now(),
         name,
         email,
+        password
+
+    } = data;
+
+    if (!password) {
+
+        throw new Error(
+            "Password is required"
+        );
+
+    }
+
+    const hashedPassword =
+        await bcrypt.hash(password, 10);
+
+    const userId = Date.now();
+
+    const newUser = {
+
+        id: userId,
+
+        name,
+
+        email,
+
         password: hashedPassword,
+
         role: "DEVELOPER"
+
     };
 
     await addUser(newUser);
+
+    await sendVerificationEmailService(email);
+
     return newUser;
+
 };
 
 const getUsersService = async () => {

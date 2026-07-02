@@ -76,10 +76,6 @@ const sendPasswordResetEmail = async (
                     We received a request to reset your password.
                 </p>
 
-                <p>
-                    Click the button below to create a new password.
-                </p>
-
                 <a
                     href="${resetLink}"
                     style="
@@ -96,12 +92,73 @@ const sendPasswordResetEmail = async (
                 </a>
 
                 <p style="margin-top:25px;">
-                    This link will expire in <strong>15 minutes</strong>.
+                    This link expires in <strong>15 minutes</strong>.
+                </p>
+
+            </div>
+
+        `
+
+    });
+
+};
+
+const sendVerificationEmail = async (
+
+    to,
+    verificationLink
+
+) => {
+
+    await transporter.sendMail({
+
+        from: process.env.EMAIL_USER,
+
+        to,
+
+        subject: "Verify Your DevFlow Account",
+
+        html: `
+
+            <div
+                style="
+                    font-family:Arial,sans-serif;
+                    max-width:600px;
+                    margin:auto;
+                    padding:30px;
+                "
+            >
+
+                <h2 style="color:#102C26;">
+                    Welcome to DevFlow 🎉
+                </h2>
+
+                <p>
+                    Thank you for creating your DevFlow account.
                 </p>
 
                 <p>
-                    If you didn't request a password reset,
-                    you can safely ignore this email.
+                    Please verify your email to activate your account.
+                </p>
+
+                <a
+                    href="${verificationLink}"
+                    style="
+                        display:inline-block;
+                        margin-top:20px;
+                        background:#102C26;
+                        color:white;
+                        padding:12px 24px;
+                        text-decoration:none;
+                        border-radius:8px;
+                    "
+                >
+                    Verify Email
+                </a>
+
+                <p style="margin-top:25px;">
+                    This verification link will expire in
+                    <strong>24 hours</strong>.
                 </p>
 
             </div>
@@ -115,6 +172,7 @@ const sendPasswordResetEmail = async (
 module.exports = {
 
     sendAssignmentEmail,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    sendVerificationEmail
 
 };
