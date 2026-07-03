@@ -8,9 +8,10 @@ const express = require('express');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const helmet = require('helmet');
-
+const session = require("express-session");
+const passport = require("./config/passport");
 const swaggerSpec = require('./config/swagger');
-
+const authRoutes = require("./routes/v1/authRoutes");
 const { apiLimiter } = require('./middleware/rateLimitMiddleware');
 const errorHandler = require('./middleware/errorMiddleware');
 
@@ -65,6 +66,8 @@ app.use('/api/v1/activities', activityRoutes);
 app.use('/api/v1/comments', commentRoutes);
 
 app.use('/api/v1/health', healthRoutes);
+
+app.use("/api/v1/auth",authRoutes);
 
 /* Health Route */
 app.get('/health', (req, res) => {

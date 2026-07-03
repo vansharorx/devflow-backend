@@ -6,8 +6,8 @@ const addUser = (user) => {
 
         const sql = `
             INSERT INTO users
-            (id, name, email, password, role)
-            VALUES (?, ?, ?, ?, ?)
+            (id, name, email, password, role, is_verified)
+            VALUES (?, ?, ?, ?, ?, ?)
         `;
 
         db.query(
@@ -19,7 +19,8 @@ const addUser = (user) => {
                 user.name,
                 user.email,
                 user.password,
-                user.role
+                user.role,
+                false
             ],
 
             (err, result) => {

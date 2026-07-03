@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { saveRefreshToken } = require('../models/tokenModel');
-const crypto = require("crypto");
 
 const {
     sendVerificationEmailService

@@ -6,9 +6,12 @@ const {
 } = require("../models/userModel");
 
 const {
+
     saveVerificationToken,
     findVerificationToken,
-    deleteVerificationToken
+    deleteVerificationToken,
+    deleteVerificationTokensByUserId
+
 } = require("../models/emailVerificationModel");
 
 const {
@@ -26,6 +29,10 @@ const sendVerificationEmailService = async (email) => {
     if (user.is_verified) {
         throw new Error("Email is already verified.");
     }
+
+    await deleteVerificationTokensByUserId(
+        user.id
+    );
 
     const token =
         crypto.randomBytes(32).toString("hex");

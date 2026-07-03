@@ -96,10 +96,39 @@ const deleteVerificationToken = (token) => {
 
 };
 
+const deleteVerificationTokensByUserId = (userId) => {
+
+    return new Promise((resolve, reject) => {
+
+        db.query(
+
+            `
+            DELETE
+            FROM email_verification_tokens
+            WHERE user_id = ?
+            `,
+
+            [userId],
+
+            (err, result) => {
+
+                if (err) return reject(err);
+
+                resolve(result);
+
+            }
+
+        );
+
+    });
+
+};
+
 module.exports = {
 
     saveVerificationToken,
     findVerificationToken,
-    deleteVerificationToken
+    deleteVerificationToken,
+    deleteVerificationTokensByUserId
 
 };
