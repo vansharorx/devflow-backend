@@ -9,20 +9,23 @@ services:
     depends_on:
       - mysql
 
+    env_file:
+      - .env.development
+
     environment:
       DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: Ramramji@123
-      DB_NAME: devflow
 
   mysql:
     image: mysql:8
 
     restart: always
 
+    env_file:
+      - .env.development
+
     environment:
-      MYSQL_ROOT_PASSWORD: Ramramji@123
-      MYSQL_DATABASE: devflow
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
 
     ports:
       - "3307:3306"
