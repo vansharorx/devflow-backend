@@ -12,15 +12,33 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-db.getConnection((err, connection) => {
+const connectWithRetry = () => {
 
-    if (err) {
-        console.log("DB connection failed:", err);
-        return;
-    }
+    db.getConnection((err, connection) => {
 
-    console.log("MySQL connected");
-    connection.release();
-});
+        if (err) {
+
+            console.error(
+                `❌ MySQL not ready. Retrying in 5 seconds...`
+            );
+
+            setTimeout(
+                connectWithRetry,
+                5000
+            );
+
+            return;
+
+        }
+
+        console.log("✅ MySQL connected");
+
+        connection.release();
+
+    });
+
+};
+
+connectWithRetry();
 
 module.exports = db;
