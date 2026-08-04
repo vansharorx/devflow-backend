@@ -5,7 +5,8 @@ const {
     createUserService,
     getUsersService,
     loginUserService,
-    changePasswordService
+    changePasswordService,
+    uploadProfileImageService
 } = require('../services/userService');
 
 exports.getUsers = async (req, res) => {
@@ -87,7 +88,6 @@ exports.loginUser = async (req, res) => {
         });
     }
 };
-
 
 exports.refreshToken = async (req, res) => {
 
@@ -193,6 +193,33 @@ exports.changePassword = async (req, res) => {
         res.json({
             success: true,
             message: "Password changed successfully"
+        });
+
+    } catch (err) {
+
+        res.status(400).json({
+            success: false,
+            message: err.message
+        });
+
+    }
+
+};
+
+exports.uploadProfileImage = async (req, res) => {
+
+    try {
+
+        const imagePath =
+            await uploadProfileImageService(
+                req.user.id,
+                req.file
+            );
+
+        res.status(200).json({
+            success: true,
+            message: "Profile image updated successfully.",
+            profileImage: imagePath
         });
 
     } catch (err) {

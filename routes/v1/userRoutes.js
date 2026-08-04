@@ -23,6 +23,7 @@ const express = require('express');
 const router = express.Router();
 
 const authenticate = require('../../middleware/authMiddleware');
+const upload = require('../../middleware/uploadMiddleware');
 const { authLimiter } = require('../../middleware/rateLimitMiddleware');
 
 const {
@@ -33,7 +34,8 @@ const {
     loginUser,
     refreshToken,
     logoutUser,
-    changePassword
+    changePassword,
+    uploadProfileImage
 } = require('../../controllers/userController');
 
 const { body } = require('express-validator');
@@ -62,6 +64,13 @@ router.put(
     "/change-password",
     authenticate,
     changePassword
+);
+
+router.post(
+    "/profile-image",
+    authenticate,
+    upload.single("profileImage"),
+    uploadProfileImage
 );
 
 router.put('/:id', authenticate, updateUser);

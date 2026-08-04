@@ -222,6 +222,65 @@ const verifyUser = (id) => {
 
 };
 
+const updateProfileImage = (id, profileImage) => {
+
+    return new Promise((resolve, reject) => {
+
+        db.query(
+
+            `
+            UPDATE users
+            SET profile_image = ?
+            WHERE id = ?
+            `,
+
+            [
+                profileImage,
+                id
+            ],
+
+            (err, result) => {
+
+                if (err) return reject(err);
+
+                resolve(result);
+
+            }
+
+        );
+
+    });
+
+};
+
+const getProfileImage = (id) => {
+
+    return new Promise((resolve, reject) => {
+
+        db.query(
+
+            `
+            SELECT profile_image
+            FROM users
+            WHERE id = ?
+            `,
+
+            [id],
+
+            (err, results) => {
+
+                if (err) return reject(err);
+
+                resolve(results[0]);
+
+            }
+
+        );
+
+    });
+
+};
+
 module.exports = {
 
     addUser,
@@ -230,5 +289,7 @@ module.exports = {
     findUserByEmail,
     findUserWithPasswordById,
     updatePassword,
-    verifyUser
+    verifyUser,
+    updateProfileImage,
+    getProfileImage
 };

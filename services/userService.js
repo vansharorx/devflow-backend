@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { saveRefreshToken } = require('../models/tokenModel');
@@ -11,8 +13,10 @@ const {
     getAllUsers,
     findUserByEmail,
     findUserWithPasswordById,
-    updatePassword
-} = require('../models/userModel');
+    updatePassword,
+    updateProfileImage,
+    getProfileImage
+} = require("../models/userModel");
 
 const loginUserService = async ({ email, password }) => {
     const user = await findUserByEmail(email);
@@ -48,16 +52,16 @@ const loginUserService = async ({ email, password }) => {
     }
 
     const accessToken = jwt.sign(
-    {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-    },
-    process.env.JWT_SECRET,
-    {
-        expiresIn: "15m"
-    }
+        {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "15m"
+        }
     );
 
     const refreshToken = jwt.sign(
@@ -72,6 +76,7 @@ const loginUserService = async ({ email, password }) => {
 };
 
 module.exports.loginUserService = loginUserService;
+
 const createUserService = async (data) => {
 
     const {
@@ -152,7 +157,7 @@ const changePasswordService = async (
             "New password cannot be the same as the current password"
         );
     }
-    
+
     const hashedPassword = await bcrypt.hash(
         newPassword,
         10
@@ -165,9 +170,68 @@ const changePasswordService = async (
 
 };
 
+const uploadProfileImageService = async (
+
+    userId,
+    file
+
+) => {
+
+    if (!file) {
+
+        throw new Error(
+            "Please select an image."
+        );
+
+    }
+
+    const oldImage = await getProfileImage(userId);
+
+    if (
+
+        oldImage &&
+        oldImage.profile_image
+
+    ) {
+
+        const oldPath = path.join(
+
+            __dirname,
+            "..",
+            oldImage.profile_image
+
+        );
+
+        if (
+
+            fs.existsSync(oldPath)
+
+        ) {
+
+            fs.unlinkSync(oldPath);
+
+        }
+
+    }
+
+    const imagePath =
+        `uploads/profile/${file.filename}`;
+
+    await updateProfileImage(
+
+        userId,
+        imagePath
+
+    );
+
+    return imagePath;
+
+};
+
 module.exports = {
     createUserService,
     getUsersService,
     loginUserService,
-    changePasswordService
+    changePasswordService,
+    uploadProfileImageService
 };
