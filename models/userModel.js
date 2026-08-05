@@ -49,6 +49,7 @@ const getAllUsers = () => {
                 name,
                 email,
                 role
+                profile_image
             FROM users
             WHERE is_deleted = FALSE
             `,
@@ -78,7 +79,8 @@ const findUserById = (id) => {
                 id,
                 name,
                 email,
-                role
+                role,
+                profile_image
             FROM users
             WHERE id = ?
             AND is_deleted = FALSE

@@ -35,12 +35,14 @@ const {
     refreshToken,
     logoutUser,
     changePassword,
-    uploadProfileImage
+    uploadProfileImage,
+    getCurrentUser
 } = require('../../controllers/userController');
 
 const { body } = require('express-validator');
 const validate = require('../../middleware/validationMiddleware');
 
+router.get("/me",authenticate,getCurrentUser);
 router.get('/', authenticate, getUsers);
 
 router.post(

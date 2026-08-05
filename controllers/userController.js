@@ -9,6 +9,8 @@ const {
     uploadProfileImageService
 } = require('../services/userService');
 
+const { findUserById } = require("../models/userModel");
+
 exports.getUsers = async (req, res) => {
     try {
         const users = await getUsersService();
@@ -227,6 +229,45 @@ exports.uploadProfileImage = async (req, res) => {
         res.status(400).json({
             success: false,
             message: err.message
+        });
+
+    }
+
+};
+
+exports.getCurrentUser = async (req, res) => {
+
+    try {
+
+        const user = await findUserById(
+            req.user.id
+        );
+
+        if (!user) {
+
+            return res.status(404).json({
+
+                success: false,
+                message: "User not found"
+
+            });
+
+        }
+
+        res.json({
+
+            success: true,
+            data: user
+
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+
+            success: false,
+            message: err.message
+
         });
 
     }

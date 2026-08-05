@@ -26,7 +26,13 @@ app.use(express.json({
     limit: '1mb'
 }));
 
-app.use(helmet());
+app.use(
+    helmet({
+        crossOriginResourcePolicy: {
+            policy: "cross-origin"
+        }
+    })
+);
 
 app.use(morgan('combined'));
 
