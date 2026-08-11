@@ -8,6 +8,7 @@ const db = mysql.createPool({
     user: config.db.user,
     password: config.db.password,
     database: config.db.database,
+
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -20,7 +21,7 @@ const connectWithRetry = () => {
         if (err) {
 
             console.error(
-                `❌ MySQL not ready. Retrying in 5 seconds...`
+                "❌ MySQL not ready. Retrying in 5 seconds..."
             );
 
             setTimeout(
@@ -29,7 +30,6 @@ const connectWithRetry = () => {
             );
 
             return;
-
         }
 
         console.log("✅ MySQL connected");

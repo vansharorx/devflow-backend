@@ -89,8 +89,15 @@ const loginUserService = async ({
         refreshToken
     );
 
+    const safeUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+    };
+
     return {
-        user,
+        user: safeUser,
         accessToken,
         refreshToken
     };
