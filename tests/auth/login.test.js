@@ -117,9 +117,7 @@ describe("POST /api/v1/users/login", () => {
                     email: verifiedEmail,
                     password
                 });
-        
-        console.log("LOGIN RESPONSE:", response.body);
-        
+                
         expect(response.statusCode)
             .toBe(200);
 
