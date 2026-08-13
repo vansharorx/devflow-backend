@@ -23,6 +23,7 @@ const express = require('express');
 const router = express.Router();
 
 const authenticate = require('../../middleware/authMiddleware');
+const authorizeRoles = require('../../middleware/roleMiddleware');
 const upload = require('../../middleware/uploadMiddleware');
 const { authLimiter } = require('../../middleware/rateLimitMiddleware');
 
@@ -42,8 +43,14 @@ const {
 const { body } = require('express-validator');
 const validate = require('../../middleware/validationMiddleware');
 
-router.get("/me",authenticate,getCurrentUser);
-router.get('/', authenticate, getUsers);
+router.get("/me", authenticate, getCurrentUser);
+
+router.get(
+    '/',
+    authenticate,
+    authorizeRoles("ADMIN"),
+    getUsers
+);
 
 router.post(
     '/',
@@ -75,8 +82,18 @@ router.post(
     uploadProfileImage
 );
 
-router.put('/:id', authenticate, updateUser);
+router.put(
+    '/:id',
+    authenticate,
+    authorizeRoles("ADMIN"),
+    updateUser
+);
 
-router.delete('/:id', authenticate, deleteUser);
+router.delete(
+    '/:id',
+    authenticate,
+    authorizeRoles("ADMIN"),
+    deleteUser
+);
 
 module.exports = router;

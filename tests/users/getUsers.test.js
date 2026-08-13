@@ -12,37 +12,37 @@ jest.mock("../../services/emailVerificationService", () => ({
 
 const testEmails = new Set();
 
-describe("GET /api/v1/users/me", () => {
+describe("GET /api/v1/users", () => {
 
-    let user;
     let accessToken;
 
     beforeAll(async () => {
 
         const email =
-            `me-${Date.now()}@devflow.test`;
+            `get-users-${Date.now()}@devflow.test`;
 
         testEmails.add(email);
 
-        const signupResponse =
+        const response =
             await request(app)
                 .post("/api/v1/users")
                 .send({
-                    name: "Current User Test",
+                    name: "Get Users Test Admin",
                     email,
                     password: "TestPassword123!"
                 });
 
-        expect(signupResponse.statusCode)
+        expect(response.statusCode)
             .toBe(200);
 
-        user = signupResponse.body.data;
+        const user =
+            response.body.data;
 
         await new Promise((resolve, reject) => {
 
             db.query(
-                "UPDATE users SET is_verified = TRUE WHERE id = ?",
-                [user.id],
+                "UPDATE users SET role = 'ADMIN' WHERE email = ?",
+                [email],
                 (err) => {
 
                     if (err) {
@@ -63,7 +63,7 @@ describe("GET /api/v1/users/me", () => {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    role: user.role
+                    role: "ADMIN"
                 },
                 process.env.JWT_SECRET,
                 {
@@ -104,11 +104,11 @@ describe("GET /api/v1/users/me", () => {
 
     });
 
-    test("returns the currently authenticated user", async () => {
+    test("returns users for an authenticated admin", async () => {
 
         const response =
             await request(app)
-                .get("/api/v1/users/me")
+                .get("/api/v1/users")
                 .set(
                     "Authorization",
                     `Bearer ${accessToken}`
@@ -123,20 +123,11 @@ describe("GET /api/v1/users/me", () => {
         expect(response.body.data)
             .toBeDefined();
 
-        expect(response.body.data.id)
-            .toBe(user.id);
+        expect(Array.isArray(response.body.data))
+            .toBe(true);
 
-        expect(response.body.data.name)
-            .toBe("Current User Test");
-
-        expect(response.body.data.email)
-            .toBe(user.email);
-
-        expect(response.body.data.role)
-            .toBe("DEVELOPER");
-
-        expect(response.body.data.password)
-            .toBeUndefined();
+        expect(response.body.data.length)
+            .toBeGreaterThan(0);
 
     });
 
@@ -144,7 +135,7 @@ describe("GET /api/v1/users/me", () => {
 
         const response =
             await request(app)
-                .get("/api/v1/users/me");
+                .get("/api/v1/users");
 
         expect(response.statusCode)
             .toBe(401);
@@ -158,7 +149,7 @@ describe("GET /api/v1/users/me", () => {
 
         const response =
             await request(app)
-                .get("/api/v1/users/me")
+                .get("/api/v1/users")
                 .set(
                     "Authorization",
                     "Bearer invalid-access-token"
