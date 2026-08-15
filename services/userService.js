@@ -17,7 +17,8 @@ const {
     findUserWithPasswordById,
     updatePassword,
     updateProfileImage,
-    getProfileImage
+    getProfileImage,
+    updateUser
 } = require("../models/userModel");
 
 
@@ -183,6 +184,56 @@ const getUsersService = async () => {
 
 };
 
+const updateUserService = async (
+    userId,
+    name,
+    email,
+    role
+) => {
+
+    const user =
+        await findUserWithPasswordById(
+            userId
+        );
+
+    if (!user) {
+
+        throw new Error(
+            "User not found"
+        );
+
+    }
+
+    const updatedName =
+        name !== undefined
+            ? name
+            : user.name;
+
+    const updatedEmail =
+        email !== undefined
+            ? email
+            : user.email;
+
+    const updatedRole =
+        role !== undefined
+            ? role
+            : user.role;
+
+    await updateUser(
+        userId,
+        updatedName,
+        updatedEmail,
+        updatedRole
+    );
+
+    return {
+        id: userId,
+        name: updatedName,
+        email: updatedEmail,
+        role: updatedRole
+    };
+
+};
 
 const changePasswordService = async (
     userId,
@@ -310,6 +361,8 @@ module.exports = {
 
     changePasswordService,
 
-    uploadProfileImageService
+    uploadProfileImageService,
+
+    updateUserService
 
 };

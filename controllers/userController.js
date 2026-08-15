@@ -9,6 +9,7 @@ const {
     createUserService,
     getUsersService,
     loginUserService,
+    updateUserService,
     changePasswordService,
     uploadProfileImageService
 } = require("../services/userService");
@@ -86,17 +87,33 @@ exports.updateUser = async (req, res) => {
 
     try {
 
+        const {
+            name,
+            email,
+            role
+        } = req.body;
+
+        const user =
+            await updateUserService(
+                req.params.id,
+                name,
+                email,
+                role
+            );
+
         res.json({
 
             success: true,
 
-            message: "updateUser working"
+            message: "User updated successfully",
+
+            data: user
 
         });
 
     } catch (err) {
 
-        res.status(500).json({
+        res.status(400).json({
 
             success: false,
 

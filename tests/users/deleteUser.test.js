@@ -12,7 +12,7 @@ jest.mock("../../services/emailVerificationService", () => ({
 
 const testEmails = new Set();
 
-describe("PUT /api/v1/users/:id", () => {
+describe("DELETE /api/v1/users/:id", () => {
 
     let adminToken;
     let developerToken;
@@ -21,10 +21,10 @@ describe("PUT /api/v1/users/:id", () => {
     beforeAll(async () => {
 
         const adminEmail =
-            `update-admin-${Date.now()}@devflow.test`;
+            `delete-admin-${Date.now()}@devflow.test`;
 
         const developerEmail =
-            `update-developer-${Date.now()}@devflow.test`;
+            `delete-developer-${Date.now()}@devflow.test`;
 
         testEmails.add(adminEmail);
         testEmails.add(developerEmail);
@@ -33,7 +33,7 @@ describe("PUT /api/v1/users/:id", () => {
             await request(app)
                 .post("/api/v1/users")
                 .send({
-                    name: "Update Admin Test User",
+                    name: "Delete Admin Test User",
                     email: adminEmail,
                     password: "TestPassword123!"
                 });
@@ -81,7 +81,7 @@ describe("PUT /api/v1/users/:id", () => {
             await request(app)
                 .post("/api/v1/users")
                 .send({
-                    name: "Update Developer Test User",
+                    name: "Delete Developer Test User",
                     email: developerEmail,
                     password: "TestPassword123!"
                 });
@@ -142,18 +142,15 @@ describe("PUT /api/v1/users/:id", () => {
 
     });
 
-    test("allows an admin to update a user", async () => {
+    test("allows an admin to delete a user", async () => {
 
         const response =
             await request(app)
-                .put(`/api/v1/users/${userId}`)
+                .delete(`/api/v1/users/${userId}`)
                 .set(
                     "Authorization",
                     `Bearer ${adminToken}`
-                )
-                .send({
-                    name: "Updated User"
-                });
+                );
 
         expect(response.statusCode)
             .toBe(200);
@@ -161,60 +158,17 @@ describe("PUT /api/v1/users/:id", () => {
         expect(response.body.success)
             .toBe(true);
 
-        expect(response.body.data)
-            .toBeDefined();
-
-        expect(response.body.data.name)
-            .toBe("Updated User");
-
-        const updatedUser =
-            await new Promise((resolve, reject) => {
-
-                db.query(
-                    `
-                    SELECT
-                        id,
-                        name,
-                        email,
-                        role
-                    FROM users
-                    WHERE id = ?
-                    `,
-                    [userId],
-                    (err, results) => {
-
-                        if (err) {
-                            reject(err);
-                            return;
-                        }
-
-                        resolve(results[0]);
-
-                    }
-                );
-
-            });
-
-        expect(updatedUser)
-            .toBeDefined();
-
-        expect(updatedUser.name)
-            .toBe("Updated User");
-
     });
 
-    test("rejects a developer from updating a user", async () => {
+    test("rejects a developer from deleting a user", async () => {
 
         const response =
             await request(app)
-                .put(`/api/v1/users/${userId}`)
+                .delete(`/api/v1/users/${userId}`)
                 .set(
                     "Authorization",
                     `Bearer ${developerToken}`
-                )
-                .send({
-                    name: "Unauthorized Update"
-                });
+                );
 
         expect(response.statusCode)
             .toBe(403);
@@ -227,14 +181,11 @@ describe("PUT /api/v1/users/:id", () => {
 
     });
 
-    test("rejects update without authentication", async () => {
+    test("rejects delete without authentication", async () => {
 
         const response =
             await request(app)
-                .put(`/api/v1/users/${userId}`)
-                .send({
-                    name: "Unauthorized Update"
-                });
+                .delete(`/api/v1/users/${userId}`);
 
         expect(response.statusCode)
             .toBe(401);
@@ -244,18 +195,15 @@ describe("PUT /api/v1/users/:id", () => {
 
     });
 
-    test("rejects update with an invalid access token", async () => {
+    test("rejects delete with an invalid access token", async () => {
 
         const response =
             await request(app)
-                .put(`/api/v1/users/${userId}`)
+                .delete(`/api/v1/users/${userId}`)
                 .set(
                     "Authorization",
                     "Bearer invalid-access-token"
-                )
-                .send({
-                    name: "Unauthorized Update"
-                });
+                );
 
         expect(response.statusCode)
             .toBe(401);

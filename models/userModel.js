@@ -283,6 +283,43 @@ const getProfileImage = (id) => {
 
 };
 
+const updateUser = (id, name, email, role) => {
+
+    return new Promise((resolve, reject) => {
+
+        db.query(
+
+            `
+            UPDATE users
+            SET
+                name = ?,
+                email = ?,
+                role = ?
+            WHERE id = ?
+            AND is_deleted = FALSE
+            `,
+
+            [
+                name,
+                email,
+                role,
+                id
+            ],
+
+            (err, result) => {
+
+                if (err) return reject(err);
+
+                resolve(result);
+
+            }
+
+        );
+
+    });
+
+};
+
 module.exports = {
 
     addUser,
@@ -293,5 +330,6 @@ module.exports = {
     updatePassword,
     verifyUser,
     updateProfileImage,
-    getProfileImage
+    getProfileImage,
+    updateUser
 };
