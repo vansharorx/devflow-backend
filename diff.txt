@@ -1,0 +1,91 @@
+﻿diff --git a/routes/v1/authRoutes.js b/routes/v1/authRoutes.js
+index 90c9ed0..4ad029d 100644
+--- a/routes/v1/authRoutes.js
++++ b/routes/v1/authRoutes.js
+@@ -1,58 +1,64 @@
+ const express = require("express");
+-
+ const passport = require("passport");
+ 
+ const {
+-
+     googleCallback
+-
+ } = require("../../controllers/authController");
+ 
+ const router = express.Router();
+ 
+-router.get(
++const googleOAuthEnabled =
++    Boolean(
++        process.env.GOOGLE_CLIENT_ID &&
++        process.env.GOOGLE_CLIENT_SECRET &&
++        process.env.GOOGLE_CALLBACK_URL
++    );
+ 
++router.get(
+     "/google",
++    (req, res, next) => {
+ 
+-    passport.authenticate(
++        if (!googleOAuthEnabled) {
++            return res.status(503).json({
++                success: false,
++                message: "Google OAuth is not configured"
++            });
++        }
+ 
++        next();
++    },
++    passport.authenticate(
+         "google",
+-
+         {
+-
+             scope: [
+-
+                 "profile",
+                 "email"
+-
+             ]
+-
+         }
+-
+     )
+-
+ );
+ 
+ router.get(
+-
+     "/google/callback",
++    (req, res, next) => {
+ 
+-    passport.authenticate(
++        if (!googleOAuthEnabled) {
++            return res.status(503).json({
++                success: false,
++                message: "Google OAuth is not configured"
++            });
++        }
+ 
++        next();
++    },
++    passport.authenticate(
+         "google",
+-
+         {
+-
+             session: false,
+-
+             failureRedirect: "/login"
+-
+         }
+-
+     ),
+-
+     googleCallback
+-
+ );
+ 
+ module.exports = router;
+\ No newline at end of file
