@@ -139,20 +139,6 @@ exports.getIssueHistory = async (req, res) => {
   }
 };
 
-exports.getIssueStats = async (req, res) => {
-  try {
-    res.json({
-      success: true,
-      message: "Issue stats fetched",
-      data: {}
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message
-    });
-  }
-};
 
 exports.getDetailedIssues = async (req, res) => {
   try {

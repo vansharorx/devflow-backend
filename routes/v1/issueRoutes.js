@@ -16,7 +16,6 @@ const {
   assignIssue,
   updateIssueStatus,
   getIssueHistory,
-  getIssueStats,
   getDetailedIssues,
   getFilteredIssues,
   searchIssues,
@@ -26,7 +25,6 @@ const {
 router.get('/search', authenticate, searchIssues);
 router.get('/filter', authenticate, getFilteredIssues);
 router.get('/', authenticate, getIssues);
-router.get('/stats', authenticate, getIssueStats);
 router.get('/detailed', authenticate, getDetailedIssues);
 router.get('/:id/history', authenticate, getIssueHistory);
 
