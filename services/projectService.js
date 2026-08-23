@@ -7,6 +7,7 @@ const {
 } = require('../models/projectModel');
 
 const { findUserById } = require('../models/userModel');
+const { addProjectMember } = require('../models/projectMemberModel');
 
 const createProjectService = async (data) => {
     const { name, description, createdBy } = data;
@@ -24,6 +25,7 @@ const createProjectService = async (data) => {
     };
 
     await addProject(newProject);
+    await addProjectMember(newProject.id, createdBy);
     return newProject;
 };
 
