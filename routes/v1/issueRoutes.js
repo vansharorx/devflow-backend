@@ -7,7 +7,7 @@ const upload = require('../../middleware/uploadMiddleware');
 
 const { body } = require('express-validator');
 const validate = require('../../middleware/validationMiddleware');
-
+const { authorizeIssueProjectMember } = require('../../middleware/projectMemberMiddleware');
 const issueController = require('../../controllers/issueController');
 
 const {
@@ -45,6 +45,7 @@ router.put(
   '/:id/status',
   authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
+  authorizeIssueProjectMember,
   updateIssueStatus
 );
 
@@ -52,6 +53,7 @@ router.put(
   '/:id/assign',
   authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
+  authorizeIssueProjectMember,
   assignIssue
 );
 
@@ -59,6 +61,7 @@ router.delete(
   '/:id',
   authenticate,
   authorizeRoles("ADMIN", "MANAGER"),
+  authorizeIssueProjectMember,
   deleteIssue
 );
 

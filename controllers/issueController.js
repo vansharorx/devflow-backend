@@ -20,7 +20,7 @@ const {
 
 exports.getIssues = async (req, res) => {
   try {
-    const issues = await getIssuesService();
+    const issues = await getIssuesService(req.user);
 
     res.json({
       success: true,

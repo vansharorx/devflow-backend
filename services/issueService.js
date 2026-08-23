@@ -38,8 +38,11 @@ const createIssueService = async (data) => {
   return newIssue;
 };
 
-const getIssuesService = async () => {
-  return await getAllIssues();
+const getIssuesService = async (user) => {
+  return await getAllIssues(
+    user.id,
+    user.role === "ADMIN"
+  );
 };
 
 const getDetailedIssuesService = async () => {

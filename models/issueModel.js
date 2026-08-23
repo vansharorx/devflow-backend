@@ -37,25 +37,55 @@ const addIssue = (issue) => {
     });
 };
 
-const getAllIssues = () => {
+const getAllIssues = (userId, isAdmin = false) => {
     return new Promise((resolve, reject) => {
-        const sql = `
-            SELECT
-                id,
-                title,
-                description,
-                project_id,
-                created_by,
-                assigned_to,
-                status,
-                attachment,
-                created_at
-            FROM issues
-            WHERE is_deleted = FALSE
-        `;
 
-        db.query(sql, (err, results) => {
+        let sql;
+        let params = [];
+
+        if (isAdmin) {
+
+            sql = `
+                SELECT
+                    id,
+                    title,
+                    description,
+                    project_id,
+                    created_by,
+                    assigned_to,
+                    status,
+                    attachment,
+                    created_at
+                FROM issues
+                WHERE is_deleted = FALSE
+            `;
+
+        } else {
+
+            sql = `
+                SELECT
+                    i.id,
+                    i.title,
+                    i.description,
+                    i.project_id,
+                    i.created_by,
+                    i.assigned_to,
+                    i.status,
+                    i.attachment,
+                    i.created_at
+                FROM issues i
+                INNER JOIN project_members pm
+                    ON pm.project_id = i.project_id
+                    AND pm.user_id = ?
+                WHERE i.is_deleted = FALSE
+            `;
+
+            params.push(userId);
+        }
+
+        db.query(sql, params, (err, results) => {
             if (err) return reject(err);
+
             resolve(results);
         });
     });
