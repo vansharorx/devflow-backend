@@ -91,6 +91,68 @@ const getAllIssues = (userId, isAdmin = false) => {
     });
 };
 
+const searchIssues = (query, userId, isAdmin = false) => {
+    return new Promise((resolve, reject) => {
+
+        const searchTerm = `%${query}%`;
+
+        let sql;
+        let params;
+
+        if (isAdmin) {
+
+            sql = `
+                SELECT
+                    id,
+                    title,
+                    description,
+                    project_id,
+                    created_by,
+                    assigned_to,
+                    status,
+                    attachment,
+                    created_at
+                FROM issues
+                WHERE is_deleted = FALSE
+                AND title LIKE ?
+                ORDER BY created_at DESC
+            `;
+
+            params = [searchTerm];
+
+        } else {
+
+            sql = `
+                SELECT
+                    i.id,
+                    i.title,
+                    i.description,
+                    i.project_id,
+                    i.created_by,
+                    i.assigned_to,
+                    i.status,
+                    i.attachment,
+                    i.created_at
+                FROM issues i
+                INNER JOIN project_members pm
+                    ON pm.project_id = i.project_id
+                    AND pm.user_id = ?
+                WHERE i.is_deleted = FALSE
+                AND i.title LIKE ?
+                ORDER BY i.created_at DESC
+            `;
+
+            params = [userId, searchTerm];
+        }
+
+        db.query(sql, params, (err, results) => {
+            if (err) return reject(err);
+
+            resolve(results);
+        });
+    });
+};
+
 const findIssueById = (id) => {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -240,6 +302,7 @@ const deleteIssue = (id) => {
 module.exports = {
     addIssue,
     getAllIssues,
+    searchIssues,
     findIssueById,
     updateIssueStatus,
     assignIssue,

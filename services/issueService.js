@@ -3,6 +3,7 @@ const db = require('../config/db');
 const {
   addIssue,
   getAllIssues,
+  searchIssues,
   findIssueById,
   updateIssueStatus,
   assignIssue,
@@ -124,9 +125,18 @@ const deleteIssueService = async (id) => {
   return await deleteIssue(id);
 };
 
+const searchIssuesService = async (query, user) => {
+  return await searchIssues(
+    query,
+    user.id,
+    user.role === "ADMIN"
+  );
+};
+
 module.exports = {
   createIssueService,
   getIssuesService,
+  searchIssuesService,
   getDetailedIssuesService,
   getFilteredIssuesService,
   updateIssueStatus,

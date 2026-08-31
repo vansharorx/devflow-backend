@@ -1,6 +1,7 @@
 const {
   createIssueService,
   getIssuesService,
+  searchIssuesService,
   updateIssueStatus: updateIssueStatusService,
   assignIssue: assignIssueService,
   findIssueById,
@@ -192,15 +193,11 @@ exports.searchIssues = async (req, res) => {
       });
     }
 
-    const issues = await getIssuesService();
-
-    const filtered = issues.filter(issue =>
-      issue.title?.toLowerCase().includes(query.toLowerCase())
-    );
+    const issues = await searchIssuesService(query, req.user);
 
     res.json({
       success: true,
-      results: filtered
+      results: issues
     });
 
   } catch (err) {
