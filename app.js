@@ -6,6 +6,7 @@ require('./config/db');
 const express = require('express');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
+const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const session = require("express-session");
 const passport = require("./config/passport");
@@ -30,6 +31,8 @@ app.use(
 app.use(express.json({
     limit: '1mb'
 }));
+
+app.use(cookieParser());
 
 app.use(
     helmet({

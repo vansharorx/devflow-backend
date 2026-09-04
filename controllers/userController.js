@@ -19,6 +19,15 @@ const {
 } = require("../models/userModel");
 
 
+const REFRESH_COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/api/v1/users"
+};
+
+
 exports.getUsers = async (req, res) => {
 
     try {
@@ -27,21 +36,15 @@ exports.getUsers = async (req, res) => {
             await getUsersService();
 
         res.json({
-
             success: true,
-
             data: users
-
         });
 
     } catch (err) {
 
         res.status(500).json({
-
             success: false,
-
             message: err.message
-
         });
 
     }
@@ -59,23 +62,18 @@ exports.createUser = async (req, res) => {
             );
 
         res.json({
-
             success: true,
-
             message: "User created",
-
             data: user
-
         });
 
     } catch (err) {
+
         console.error("CREATE USER ERROR:", err);
+
         res.status(500).json({
-
             success: false,
-
             message: err.message
-
         });
 
     }
@@ -102,23 +100,16 @@ exports.updateUser = async (req, res) => {
             );
 
         res.json({
-
             success: true,
-
             message: "User updated successfully",
-
             data: user
-
         });
 
     } catch (err) {
 
         res.status(400).json({
-
             success: false,
-
             message: err.message
-
         });
 
     }
@@ -131,21 +122,15 @@ exports.deleteUser = async (req, res) => {
     try {
 
         res.json({
-
             success: true,
-
             message: "deleteUser working"
-
         });
 
     } catch (err) {
 
         res.status(500).json({
-
             success: false,
-
             message: err.message
-
         });
 
     }
@@ -166,6 +151,16 @@ exports.loginUser = async (req, res) => {
                 req.body
             );
 
+        /*
+         * Refresh token is stored in an HttpOnly cookie.
+         * JavaScript cannot access it.
+         */
+        res.cookie(
+            "refreshToken",
+            refreshToken,
+            REFRESH_COOKIE_OPTIONS
+        );
+
         res.json({
 
             success: true,
@@ -173,8 +168,6 @@ exports.loginUser = async (req, res) => {
             message: "Login successful",
 
             accessToken,
-
-            refreshToken,
 
             data: user
 
@@ -197,9 +190,8 @@ exports.loginUser = async (req, res) => {
 
 exports.refreshToken = async (req, res) => {
 
-    const {
-        token
-    } = req.body;
+    const token =
+        req.cookies.refreshToken;
 
     if (!token) {
 
@@ -284,8 +276,7 @@ exports.refreshToken = async (req, res) => {
 
             success: false,
 
-            message:
-                "Invalid refresh token"
+            message: "Invalid refresh token"
 
         });
 
@@ -296,22 +287,34 @@ exports.refreshToken = async (req, res) => {
 
 exports.logoutUser = async (req, res) => {
 
-    const {
-        token
-    } = req.body;
+    const token =
+        req.cookies.refreshToken;
 
     try {
 
-        await deleteToken(
-            token
+        if (token) {
+
+            await deleteToken(
+                token
+            );
+
+        }
+
+        res.clearCookie(
+            "refreshToken",
+            {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/api/v1/users"
+            }
         );
 
         res.json({
 
             success: true,
 
-            message:
-                "Logged out successfully"
+            message: "Logged out successfully"
 
         });
 
@@ -340,21 +343,16 @@ exports.changePassword = async (req, res) => {
         } = req.body;
 
         await changePasswordService(
-
             req.user.id,
-
             currentPassword,
-
             newPassword
-
         );
 
         res.json({
 
             success: true,
 
-            message:
-                "Password changed successfully"
+            message: "Password changed successfully"
 
         });
 
@@ -379,11 +377,8 @@ exports.uploadProfileImage = async (req, res) => {
 
         const imagePath =
             await uploadProfileImageService(
-
                 req.user.id,
-
                 req.file
-
             );
 
         res.status(200).json({
