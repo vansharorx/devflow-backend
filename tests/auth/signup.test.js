@@ -130,7 +130,7 @@ describe("POST /api/v1/users", () => {
                 });
 
         expect(response.statusCode)
-            .toBe(500);
+            .toBe(400);
 
         expect(response.body.success)
             .toBe(false);

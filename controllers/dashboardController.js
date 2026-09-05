@@ -28,11 +28,16 @@ exports.getDashboardStats = async (
 
     catch (err) {
 
+        console.error(
+            "Failed to fetch dashboard data:",
+            err
+        );
+
         res.status(500).json({
 
             success: false,
 
-            message: err.message
+            message: "Internal server error"
 
         });
 

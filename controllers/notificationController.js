@@ -14,16 +14,20 @@ exports.getNotifications = async (req, res) => {
         });
 
     } catch (err) {
+        console.error(
+            "Failed to fetch notifications:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };
 
 exports.markAsRead = async (req, res) => {
     try {
-
         const { id } = req.params;
 
         await markReadService(id);
@@ -37,9 +41,14 @@ exports.markAsRead = async (req, res) => {
         });
 
     } catch (err) {
+        console.error(
+            "Failed to mark notification as read:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };

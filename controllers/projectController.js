@@ -19,10 +19,8 @@ exports.getProjects = async (req, res) => {
             });
         }
 
-        // DB fetch
         const projects = await getProjectsService();
 
-        // Save to cache
         cache.set('projects', projects);
 
         res.json({
@@ -30,10 +28,16 @@ exports.getProjects = async (req, res) => {
             source: "database",
             data: projects
         });
+
     } catch (err) {
+        console.error(
+            "Failed to fetch projects:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };
@@ -52,10 +56,23 @@ exports.createProject = async (req, res) => {
             message: "Project created",
             data: project
         });
+
     } catch (err) {
-        res.status(400).json({
+        console.error(
+            "Failed to create project:",
+            err
+        );
+
+        if (err.message === "User not found") {
+            return res.status(400).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };
@@ -66,10 +83,16 @@ exports.getProjectAnalytics = async (req, res) => {
             success: true,
             message: "Analytics endpoint working"
         });
+
     } catch (err) {
+        console.error(
+            "Failed to fetch project analytics:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };
@@ -88,9 +111,14 @@ exports.deleteProject = async (req, res) => {
         });
 
     } catch (err) {
+        console.error(
+            "Failed to delete project:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };
@@ -102,16 +130,21 @@ exports.restoreProject = async (req, res) => {
         await restoreProjectService(id);
 
         cache.del('projects');
-        
+
         res.json({
             success: true,
             message: "Project restored successfully"
         });
 
     } catch (err) {
+        console.error(
+            "Failed to restore project:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };

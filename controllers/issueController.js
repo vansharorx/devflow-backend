@@ -16,7 +16,7 @@ const { findUserById } = require('../models/userModel');
 const { createActivityService } = require('../services/activityService');
 
 const {
-    createNotificationService
+  createNotificationService
 } = require('../services/notificationService');
 
 exports.getIssues = async (req, res) => {
@@ -28,38 +28,61 @@ exports.getIssues = async (req, res) => {
       data: issues
     });
   } catch (err) {
+    console.error(
+      "Failed to fetch issues:",
+      err
+    );
+
     res.status(500).json({
       success: false,
-      message: err.message
+      message: "Internal server error"
     });
   }
 };
 
 exports.createIssue = async (req, res) => {
-    try {
-        const issue = await createIssueService({
-            ...req.body,
-            createdBy: req.user.id
-        });
+  try {
+    const issue = await createIssueService({
+      ...req.body,
+      createdBy: req.user.id
+    });
 
-        await createActivityService({
-            action: 'Issue Created',
-            entityType: 'ISSUE',
-            entityId: issue.id,
-            performedBy: req.user.id
-        });
+    await createActivityService({
+      action: 'Issue Created',
+      entityType: 'ISSUE',
+      entityId: issue.id,
+      performedBy: req.user.id
+    });
 
-        res.json({
-            success: true,
-            message: "Issue created",
-            data: issue
-        });
-    } catch (err) {
-        res.status(400).json({
+    res.json({
+      success: true,
+      message: "Issue created",
+      data: issue
+    });
+  } 
+  catch (err) {
+    console.error(
+        "Failed to create issue:",
+        err
+    );
+
+    const safeMessages = [
+        "Project not found",
+        "User not found"
+    ];
+
+    if (safeMessages.includes(err.message)) {
+        return res.status(400).json({
             success: false,
             message: err.message
         });
     }
+
+    res.status(500).json({
+        success: false,
+        message: "Internal server error"
+    });
+  }
 };
 
 exports.updateIssueStatus = async (req, res) => {
@@ -74,51 +97,58 @@ exports.updateIssueStatus = async (req, res) => {
       message: "Status updated"
     });
   } catch (err) {
+    console.error(
+      "Failed to update issue status:",
+      err
+    );
+
     res.status(500).json({
       success: false,
-      message: err.message
+      message: "Internal server error"
     });
   }
 };
 
 exports.assignIssue = async (req, res) => {
-    try {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
 
-        const { id } = req.params;
-        const { userId } = req.body;
+    const issue = await findIssueById(id);
 
-        const issue = await findIssueById(id);
-
-        if (!issue) {
-            return res.status(404).json({
-                success: false,
-                message: "Issue not found"
-            });
-        }
-
-        await transactionalAssignIssue({
-            issueId: id,
-            userId,
-            issueTitle: issue.title
-        });
-
-        const io = req.app.get("io");
-        io.emit("notification");
-
-        res.json({
-            success: true,
-            message: "Issue assigned successfully"
-        });
-
-    } catch (err) {
-
-        console.error(err);
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
+    if (!issue) {
+      return res.status(404).json({
+        success: false,
+        message: "Issue not found"
+      });
     }
+
+    await transactionalAssignIssue({
+      issueId: id,
+      userId,
+      issueTitle: issue.title
+    });
+
+    const io = req.app.get("io");
+
+    io.emit("notification");
+
+    res.json({
+      success: true,
+      message: "Issue assigned successfully"
+    });
+
+  } catch (err) {
+    console.error(
+      "Failed to assign issue:",
+      err
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
 };
 
 exports.getIssueHistory = async (req, res) => {
@@ -133,13 +163,17 @@ exports.getIssueHistory = async (req, res) => {
       data: issue || []
     });
   } catch (err) {
+    console.error(
+      "Failed to fetch issue history:",
+      err
+    );
+
     res.status(500).json({
       success: false,
-      message: err.message
+      message: "Internal server error"
     });
   }
 };
-
 
 exports.getDetailedIssues = async (req, res) => {
   try {
@@ -150,16 +184,26 @@ exports.getDetailedIssues = async (req, res) => {
       data
     });
   } catch (err) {
+    console.error(
+      "Failed to fetch detailed issues:",
+      err
+    );
+
     res.status(500).json({
       success: false,
-      message: err.message
+      message: "Internal server error"
     });
   }
 };
 
 exports.getFilteredIssues = async (req, res) => {
   try {
-    const { page = 1, limit = 5, status, projectId } = req.query;
+    const {
+      page = 1,
+      limit = 5,
+      status,
+      projectId
+    } = req.query;
 
     const data = await getFilteredIssuesService({
       page,
@@ -175,9 +219,14 @@ exports.getFilteredIssues = async (req, res) => {
       data
     });
   } catch (err) {
+    console.error(
+      "Failed to fetch filtered issues:",
+      err
+    );
+
     res.status(500).json({
       success: false,
-      message: err.message
+      message: "Internal server error"
     });
   }
 };
@@ -193,7 +242,11 @@ exports.searchIssues = async (req, res) => {
       });
     }
 
-    const issues = await searchIssuesService(query, req.user);
+    const issues =
+      await searchIssuesService(
+        query,
+        req.user
+      );
 
     res.json({
       success: true,
@@ -201,31 +254,38 @@ exports.searchIssues = async (req, res) => {
     });
 
   } catch (err) {
+    console.error(
+      "Failed to search issues:",
+      err
+    );
+
     res.status(500).json({
       success: false,
-      message: err.message
+      message: "Internal server error"
     });
   }
 };
 
 exports.deleteIssue = async (req, res) => {
-    try {
+  try {
+    const { id } = req.params;
 
-        const { id } = req.params;
+    await deleteIssueService(id);
 
-        await deleteIssueService(id);
+    res.json({
+      success: true,
+      message: "Issue deleted successfully"
+    });
 
-        res.json({
-            success: true,
-            message: "Issue deleted successfully"
-        });
+  } catch (err) {
+    console.error(
+      "Failed to delete issue:",
+      err
+    );
 
-    } catch (err) {
-
-        res.status(500).json({
-            success: false,
-            message: err.message
-        });
-
-    }
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
 };

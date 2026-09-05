@@ -130,8 +130,13 @@ describe("POST /api/v1/users/login", () => {
         expect(response.body.accessToken)
             .toBeDefined();
 
-        expect(response.body.refreshToken)
-            .toBeDefined();
+        expect(response.headers["set-cookie"])
+        .toBeDefined();
+
+        expect(response.headers["set-cookie"].some(cookie =>
+            cookie.startsWith("refreshToken=") &&
+            cookie.includes("HttpOnly")
+        )).toBe(true);
 
         expect(response.body.data)
             .toBeDefined();
@@ -173,7 +178,7 @@ describe("POST /api/v1/users/login", () => {
             .toBe(false);
 
         expect(response.body.message)
-            .toBe("Invalid credentials");
+            .toBe("Invalid email or password");
 
     });
 
@@ -195,7 +200,7 @@ describe("POST /api/v1/users/login", () => {
             .toBe(false);
 
         expect(response.body.message)
-            .toBe("User not found");
+            .toBe("Invalid email or password");
 
     });
 

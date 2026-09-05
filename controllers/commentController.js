@@ -19,10 +19,17 @@ exports.createComment = async (req, res) => {
             data: newComment
         });
 
-    } catch (err) {
+    } 
+    
+    catch (err) {
+        console.error(
+            "Failed to create comment:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };
@@ -39,10 +46,17 @@ exports.getComments = async (req, res) => {
             data: comments
         });
 
-    } catch (err) {
+    } 
+    
+    catch (err) {
+        console.error(
+            "Failed to fetch comments:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };

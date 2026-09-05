@@ -11,10 +11,17 @@ exports.getActivities = async (req, res) => {
             data: activities
         });
 
-    } catch (err) {
+    } 
+    
+    catch (err) {
+        console.error(
+            "Failed to fetch activities:",
+            err
+        );
+
         res.status(500).json({
             success: false,
-            message: err.message
+            message: "Internal server error"
         });
     }
 };
