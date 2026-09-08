@@ -1,14 +1,12 @@
-const cron = require('node-cron');
-const db = require('../config/db');
+const cron = require("node-cron");
+const db = require("../config/db");
 
 /*
     Runs every day at midnight
 */
 const startCleanupJob = () => {
-
-    cron.schedule('0 0 * * *', async () => {
-
-        console.log('Running cleanup job...');
+    cron.schedule("0 0 * * *", async () => {
+        console.log("Running cleanup job...");
 
         try {
             // Delete notifications older than 30 days
@@ -17,11 +15,9 @@ const startCleanupJob = () => {
                 WHERE created_at < NOW() - INTERVAL 30 DAY
             `);
 
-            console.log('Old notifications cleaned');
-
+            console.log("Old notifications cleaned");
         } catch (err) {
-
-            console.error('Cleanup job failed:', err.message);
+            console.error("Cleanup job failed:", err.message);
         }
     });
 };

@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 const addComment = (commentData) => {
     return new Promise((resolve, reject) => {
@@ -10,12 +10,7 @@ const addComment = (commentData) => {
 
         db.query(
             sql,
-            [
-                commentData.id,
-                commentData.issueId,
-                commentData.userId,
-                commentData.comment
-            ],
+            [commentData.id, commentData.issueId, commentData.userId, commentData.comment],
             (err, result) => {
                 if (err) return reject(err);
                 resolve(result);
@@ -47,5 +42,5 @@ const getCommentsByIssue = (issueId) => {
 
 module.exports = {
     addComment,
-    getCommentsByIssue
+    getCommentsByIssue,
 };

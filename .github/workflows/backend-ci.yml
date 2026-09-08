@@ -1,38 +1,35 @@
 name: Backend CI
 
 on:
-  push:
-    branches:
-      - main
-      - master
+    push:
+        branches:
+            - main
+            - master
 
-  pull_request:
-    branches:
-      - main
-      - master
+    pull_request:
+        branches:
+            - main
+            - master
 
 jobs:
+    test:
+        runs-on: ubuntu-latest
 
-  test:
+        strategy:
+            matrix:
+                node-version: [20]
 
-    runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
 
-    strategy:
-      matrix:
-        node-version: [20]
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
 
-    steps:
+            - name: Install Dependencies
+              run: npm install
 
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Run Tests
-        run: npm test
+            - name: Run Tests
+              run: npm test

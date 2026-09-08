@@ -3,11 +3,11 @@ const {
     getAllProjects,
     findProjectById,
     softDeleteProject,
-    restoreProject
-} = require('../models/projectModel');
+    restoreProject,
+} = require("../models/projectModel");
 
-const { findUserById } = require('../models/userModel');
-const { addProjectMember } = require('../models/projectMemberModel');
+const { findUserById } = require("../models/userModel");
+const { addProjectMember } = require("../models/projectMemberModel");
 
 const createProjectService = async (data) => {
     const { name, description, createdBy } = data;
@@ -21,7 +21,7 @@ const createProjectService = async (data) => {
         id: Date.now(),
         name,
         description,
-        createdBy
+        createdBy,
     };
 
     await addProject(newProject);
@@ -46,5 +46,5 @@ module.exports = {
     getProjectsService,
     findProjectById,
     deleteProjectService,
-    restoreProjectService
+    restoreProjectService,
 };

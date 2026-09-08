@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 const addIssue = (issue) => {
     return new Promise((resolve, reject) => {
@@ -27,7 +27,7 @@ const addIssue = (issue) => {
                 issue.createdBy,
                 issue.assignedTo,
                 issue.status,
-                issue.attachment
+                issue.attachment,
             ],
             (err, result) => {
                 if (err) return reject(err);
@@ -39,12 +39,10 @@ const addIssue = (issue) => {
 
 const getAllIssues = (userId, isAdmin = false) => {
     return new Promise((resolve, reject) => {
-
         let sql;
         let params = [];
 
         if (isAdmin) {
-
             sql = `
                 SELECT
                     id,
@@ -59,9 +57,7 @@ const getAllIssues = (userId, isAdmin = false) => {
                 FROM issues
                 WHERE is_deleted = FALSE
             `;
-
         } else {
-
             sql = `
                 SELECT
                     i.id,
@@ -93,14 +89,12 @@ const getAllIssues = (userId, isAdmin = false) => {
 
 const searchIssues = (query, userId, isAdmin = false) => {
     return new Promise((resolve, reject) => {
-
         const searchTerm = `%${query}%`;
 
         let sql;
         let params;
 
         if (isAdmin) {
-
             sql = `
                 SELECT
                     id,
@@ -119,9 +113,7 @@ const searchIssues = (query, userId, isAdmin = false) => {
             `;
 
             params = [searchTerm];
-
         } else {
-
             sql = `
                 SELECT
                     i.id,
@@ -236,12 +228,7 @@ const getDetailedIssues = () => {
     });
 };
 
-const getPaginatedFilteredIssues = ({
-    page = 1,
-    limit = 5,
-    status,
-    projectId
-}) => {
+const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) => {
     return new Promise((resolve, reject) => {
         const offset = (page - 1) * limit;
 
@@ -308,5 +295,5 @@ module.exports = {
     assignIssue,
     getDetailedIssues,
     getPaginatedFilteredIssues,
-    deleteIssue
+    deleteIssue,
 };

@@ -3,33 +3,22 @@ const nodemailer = require("nodemailer");
 const transporter =
     process.env.NODE_ENV === "test"
         ? {
-            sendMail: async () => ({
-                messageId: "test-email"
-            })
-        }
+              sendMail: async () => ({
+                  messageId: "test-email",
+              }),
+          }
         : nodemailer.createTransport({
+              service: "gmail",
 
-            service: "gmail",
+              auth: {
+                  user: process.env.EMAIL_USER,
 
-            auth: {
+                  pass: process.env.EMAIL_PASS,
+              },
+          });
 
-                user: process.env.EMAIL_USER,
-
-                pass: process.env.EMAIL_PASS
-
-            }
-
-        });
-
-const sendAssignmentEmail = async (
-
-    to,
-    issueTitle
-
-) => {
-
+const sendAssignmentEmail = async (to, issueTitle) => {
     await transporter.sendMail({
-
         from: process.env.EMAIL_USER,
 
         to,
@@ -44,21 +33,12 @@ const sendAssignmentEmail = async (
 
             <strong>${issueTitle}</strong>
 
-        `
-
+        `,
     });
-
 };
 
-const sendPasswordResetEmail = async (
-
-    to,
-    resetLink
-
-) => {
-
+const sendPasswordResetEmail = async (to, resetLink) => {
     await transporter.sendMail({
-
         from: process.env.EMAIL_USER,
 
         to,
@@ -105,21 +85,12 @@ const sendPasswordResetEmail = async (
 
             </div>
 
-        `
-
+        `,
     });
-
 };
 
-const sendVerificationEmail = async (
-
-    to,
-    verificationLink
-
-) => {
-
+const sendVerificationEmail = async (to, verificationLink) => {
     await transporter.sendMail({
-
         from: process.env.EMAIL_USER,
 
         to,
@@ -171,16 +142,12 @@ const sendVerificationEmail = async (
 
             </div>
 
-        `
-
+        `,
     });
-
 };
 
 module.exports = {
-
     sendAssignmentEmail,
     sendPasswordResetEmail,
-    sendVerificationEmail
-
+    sendVerificationEmail,
 };

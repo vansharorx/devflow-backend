@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 const saveRefreshToken = (userId, token) => {
     return new Promise((resolve, reject) => {
@@ -15,32 +15,24 @@ const saveRefreshToken = (userId, token) => {
 
 const findToken = (token) => {
     return new Promise((resolve, reject) => {
-        db.query(
-            "SELECT * FROM refresh_tokens WHERE token = ?",
-            [token],
-            (err, results) => {
-                if (err) return reject(err);
-                resolve(results[0]);
-            }
-        );
+        db.query("SELECT * FROM refresh_tokens WHERE token = ?", [token], (err, results) => {
+            if (err) return reject(err);
+            resolve(results[0]);
+        });
     });
 };
 
 const deleteToken = (token) => {
     return new Promise((resolve, reject) => {
-        db.query(
-            "DELETE FROM refresh_tokens WHERE token = ?",
-            [token],
-            (err, result) => {
-                if (err) return reject(err);
-                resolve(result);
-            }
-        );
+        db.query("DELETE FROM refresh_tokens WHERE token = ?", [token], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
     });
 };
 
 module.exports = {
     saveRefreshToken,
     findToken,
-    deleteToken
+    deleteToken,
 };

@@ -1,15 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const authenticate = require('../../middleware/authMiddleware');
+const authenticate = require("../../middleware/authMiddleware");
 
-const {
-    createComment,
-    getComments
-} = require('../../controllers/commentController');
+const { createComment, getComments } = require("../../controllers/commentController");
 
-router.post('/', authenticate, createComment);
+router.post("/", authenticate, createComment);
 
-router.get('/:issueId', authenticate, getComments);
+router.get("/:issueId", authenticate, getComments);
 
 module.exports = router;

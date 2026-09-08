@@ -1,17 +1,14 @@
 const {
     createNotification,
     getUserNotifications,
-    markNotificationRead
-} = require('../models/notificationModel');
+    markNotificationRead,
+} = require("../models/notificationModel");
 
-const createNotificationService = async ({
-    userId,
-    message
-}) => {
+const createNotificationService = async ({ userId, message }) => {
     const notification = {
         id: Date.now(),
         userId,
-        message
+        message,
     };
 
     await createNotification(notification);
@@ -28,5 +25,5 @@ const markReadService = async (id) => {
 module.exports = {
     createNotificationService,
     getNotificationsService,
-    markReadService
+    markReadService,
 };

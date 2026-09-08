@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 const isProjectMember = (projectId, userId) => {
     return new Promise((resolve, reject) => {
@@ -10,15 +10,11 @@ const isProjectMember = (projectId, userId) => {
             LIMIT 1
         `;
 
-        db.query(
-            sql,
-            [projectId, userId],
-            (err, results) => {
-                if (err) return reject(err);
+        db.query(sql, [projectId, userId], (err, results) => {
+            if (err) return reject(err);
 
-                resolve(results.length > 0);
-            }
-        );
+            resolve(results.length > 0);
+        });
     });
 };
 
@@ -30,19 +26,15 @@ const addProjectMember = (projectId, userId) => {
             VALUES (?, ?)
         `;
 
-        db.query(
-            sql,
-            [projectId, userId],
-            (err, result) => {
-                if (err) return reject(err);
+        db.query(sql, [projectId, userId], (err, result) => {
+            if (err) return reject(err);
 
-                resolve(result);
-            }
-        );
+            resolve(result);
+        });
     });
 };
 
 module.exports = {
     isProjectMember,
-    addProjectMember
+    addProjectMember,
 };

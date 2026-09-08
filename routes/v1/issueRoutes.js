@@ -1,68 +1,68 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const authenticate = require('../../middleware/authMiddleware'); 
-const authorizeRoles = require('../../middleware/roleMiddleware');
-const upload = require('../../middleware/uploadMiddleware');
+const authenticate = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
+const upload = require("../../middleware/uploadMiddleware");
 
-const { body } = require('express-validator');
-const validate = require('../../middleware/validationMiddleware');
-const { authorizeIssueProjectMember } = require('../../middleware/projectMemberMiddleware');
-const issueController = require('../../controllers/issueController');
+const { body } = require("express-validator");
+const validate = require("../../middleware/validationMiddleware");
+const { authorizeIssueProjectMember } = require("../../middleware/projectMemberMiddleware");
+const issueController = require("../../controllers/issueController");
 
 const {
-  getIssues,
-  createIssue,
-  assignIssue,
-  updateIssueStatus,
-  getIssueHistory,
-  getDetailedIssues,
-  getFilteredIssues,
-  searchIssues,
-  deleteIssue
+    getIssues,
+    createIssue,
+    assignIssue,
+    updateIssueStatus,
+    getIssueHistory,
+    getDetailedIssues,
+    getFilteredIssues,
+    searchIssues,
+    deleteIssue,
 } = issueController;
 
-router.get('/search', authenticate, searchIssues);
-router.get('/filter', authenticate, getFilteredIssues);
-router.get('/', authenticate, getIssues);
-router.get('/detailed', authenticate, getDetailedIssues);
-router.get('/:id/history', authenticate, getIssueHistory);
+router.get("/search", authenticate, searchIssues);
+router.get("/filter", authenticate, getFilteredIssues);
+router.get("/", authenticate, getIssues);
+router.get("/detailed", authenticate, getDetailedIssues);
+router.get("/:id/history", authenticate, getIssueHistory);
 
 router.post(
-  '/',
-  authenticate,
-  authorizeRoles("ADMIN", "MANAGER"),
-  upload.single('attachment'),
-  [
-    body('title').notEmpty().withMessage('Title required'),
-    body('projectId').notEmpty().withMessage('Project ID required')
-  ],
-  validate,
-  createIssue
+    "/",
+    authenticate,
+    authorizeRoles("ADMIN", "MANAGER"),
+    upload.single("attachment"),
+    [
+        body("title").notEmpty().withMessage("Title required"),
+        body("projectId").notEmpty().withMessage("Project ID required"),
+    ],
+    validate,
+    createIssue
 );
 
 router.put(
-  '/:id/status',
-  authenticate,
-  authorizeRoles("ADMIN", "MANAGER"),
-  authorizeIssueProjectMember,
-  updateIssueStatus
+    "/:id/status",
+    authenticate,
+    authorizeRoles("ADMIN", "MANAGER"),
+    authorizeIssueProjectMember,
+    updateIssueStatus
 );
 
 router.put(
-  '/:id/assign',
-  authenticate,
-  authorizeRoles("ADMIN", "MANAGER"),
-  authorizeIssueProjectMember,
-  assignIssue
+    "/:id/assign",
+    authenticate,
+    authorizeRoles("ADMIN", "MANAGER"),
+    authorizeIssueProjectMember,
+    assignIssue
 );
 
 router.delete(
-  '/:id',
-  authenticate,
-  authorizeRoles("ADMIN", "MANAGER"),
-  authorizeIssueProjectMember,
-  deleteIssue
+    "/:id",
+    authenticate,
+    authorizeRoles("ADMIN", "MANAGER"),
+    authorizeIssueProjectMember,
+    deleteIssue
 );
 
 module.exports = router;

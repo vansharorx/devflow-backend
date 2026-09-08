@@ -3,12 +3,9 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const { saveRefreshToken } =
-    require("../models/tokenModel");
+const { saveRefreshToken } = require("../models/tokenModel");
 
-const {
-    sendVerificationEmailService
-} = require("./emailVerificationService");
+const { sendVerificationEmailService } = require("./emailVerificationService");
 
 const {
     addUser,
@@ -18,351 +15,196 @@ const {
     updatePassword,
     updateProfileImage,
     getProfileImage,
-    updateUser
+    updateUser,
 } = require("../models/userModel");
 
+let lastGeneratedUserId = 0;
 
-const loginUserService = async ({
-    email,
-    password
-}) => {
+const generateUserId = () => {
+    const now = Date.now();
 
-    const user =
-        await findUserByEmail(email);
+    if (now <= lastGeneratedUserId) {
+        lastGeneratedUserId += 1;
+    } else {
+        lastGeneratedUserId = now;
+    }
+
+    return lastGeneratedUserId;
+};
+
+const loginUserService = async ({ email, password }) => {
+    const user = await findUserByEmail(email);
 
     if (!user) {
-
-        throw new Error(
-            "User not found"
-        );
-
+        throw new Error("User not found");
     }
 
     if (!user.is_verified) {
-
-        throw new Error(
-            "Please verify your email before logging in."
-        );
-
+        throw new Error("Please verify your email before logging in.");
     }
 
-    const isMatch =
-        await bcrypt.compare(
-            password,
-            user.password
-        );
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-
-        throw new Error(
-            "Invalid credentials"
-        );
-
+        throw new Error("Invalid credentials");
     }
 
-    const accessToken =
-        jwt.sign(
-            {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "15m"
-            }
-        );
-
-    const refreshToken =
-        jwt.sign(
-            {
-                id: user.id
-            },
-            process.env.JWT_REFRESH_SECRET,
-            {
-                expiresIn: "7d"
-            }
-        );
-
-    await saveRefreshToken(
-        user.id,
-        refreshToken
+    const accessToken = jwt.sign(
+        {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "15m",
+        }
     );
+
+    const refreshToken = jwt.sign(
+        {
+            id: user.id,
+        },
+        process.env.JWT_REFRESH_SECRET,
+        {
+            expiresIn: "7d",
+        }
+    );
+
+    await saveRefreshToken(user.id, refreshToken);
 
     const safeUser = {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
     };
 
     return {
         user: safeUser,
         accessToken,
-        refreshToken
+        refreshToken,
     };
-
 };
 
-
-module.exports.loginUserService =
-    loginUserService;
-
+module.exports.loginUserService = loginUserService;
 
 const createUserService = async (data) => {
-
-    const {
-        name,
-        email,
-        password
-    } = data;
+    const { name, email, password } = data;
 
     if (!password) {
-
-        throw new Error(
-            "Password is required"
-        );
-
+        throw new Error("Password is required");
     }
 
-    const hashedPassword =
-        await bcrypt.hash(
-            password,
-            10
-        );
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const userId =
-        Date.now();
+    const userId = generateUserId();
 
     const newUser = {
-
         id: userId,
-
         name,
-
         email,
-
         password: hashedPassword,
-
-        role: "DEVELOPER"
-
+        role: "DEVELOPER",
     };
 
-    await addUser(
-        newUser
-    );
+    await addUser(newUser);
 
-    await sendVerificationEmailService(
-        email
-    );
+    await sendVerificationEmailService(email);
 
     /*
      * Never return the password hash.
      */
 
     const safeUser = {
-
         id: newUser.id,
-
         name: newUser.name,
-
         email: newUser.email,
-
-        role: newUser.role
-
+        role: newUser.role,
     };
 
     return safeUser;
-
 };
-
 
 const getUsersService = async () => {
-
     return await getAllUsers();
-
 };
 
-const updateUserService = async (
-    userId,
-    name,
-    email,
-    role
-) => {
-
-    const user =
-        await findUserWithPasswordById(
-            userId
-        );
+const updateUserService = async (userId, name, email, role) => {
+    const user = await findUserWithPasswordById(userId);
 
     if (!user) {
-
-        throw new Error(
-            "User not found"
-        );
-
+        throw new Error("User not found");
     }
 
-    const updatedName =
-        name !== undefined
-            ? name
-            : user.name;
+    const updatedName = name !== undefined ? name : user.name;
 
-    const updatedEmail =
-        email !== undefined
-            ? email
-            : user.email;
+    const updatedEmail = email !== undefined ? email : user.email;
 
-    const updatedRole =
-        role !== undefined
-            ? role
-            : user.role;
+    const updatedRole = role !== undefined ? role : user.role;
 
-    await updateUser(
-        userId,
-        updatedName,
-        updatedEmail,
-        updatedRole
-    );
+    await updateUser(userId, updatedName, updatedEmail, updatedRole);
 
     return {
         id: userId,
         name: updatedName,
         email: updatedEmail,
-        role: updatedRole
+        role: updatedRole,
     };
-
 };
 
-const changePasswordService = async (
-    userId,
-    currentPassword,
-    newPassword
-) => {
-
-    const user =
-        await findUserWithPasswordById(
-            userId
-        );
+const changePasswordService = async (userId, currentPassword, newPassword) => {
+    const user = await findUserWithPasswordById(userId);
 
     if (!user) {
-
-        throw new Error(
-            "User not found"
-        );
-
+        throw new Error("User not found");
     }
 
-    const isMatch =
-        await bcrypt.compare(
-            currentPassword,
-            user.password
-        );
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isMatch) {
-
-        throw new Error(
-            "Current password is incorrect"
-        );
-
+        throw new Error("Current password is incorrect");
     }
 
-    const isSamePassword =
-        await bcrypt.compare(
-            newPassword,
-            user.password
-        );
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
 
     if (isSamePassword) {
-
-        throw new Error(
-            "New password cannot be the same as the current password"
-        );
-
+        throw new Error("New password cannot be the same as the current password");
     }
 
-    const hashedPassword =
-        await bcrypt.hash(
-            newPassword,
-            10
-        );
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    await updatePassword(
-        userId,
-        hashedPassword
-    );
-
+    await updatePassword(userId, hashedPassword);
 };
 
-
-const uploadProfileImageService = async (
-    userId,
-    file
-) => {
-
+const uploadProfileImageService = async (userId, file) => {
     if (!file) {
-
-        throw new Error(
-            "Please select an image."
-        );
-
+        throw new Error("Please select an image.");
     }
 
-    const oldImage =
-        await getProfileImage(
-            userId
-        );
+    const oldImage = await getProfileImage(userId);
 
-    if (
-        oldImage &&
-        oldImage.profile_image
-    ) {
+    if (oldImage && oldImage.profile_image) {
+        const oldPath = path.join(__dirname, "..", oldImage.profile_image);
 
-        const oldPath =
-            path.join(
-                __dirname,
-                "..",
-                oldImage.profile_image
-            );
-
-        if (
-            fs.existsSync(oldPath)
-        ) {
-
-            fs.unlinkSync(
-                oldPath
-            );
-
+        if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
         }
-
     }
 
-    const imagePath =
-        `uploads/profile/${file.filename}`;
+    const imagePath = `uploads/profile/${file.filename}`;
 
-    await updateProfileImage(
-        userId,
-        imagePath
-    );
+    await updateProfileImage(userId, imagePath);
 
     return imagePath;
-
 };
 
-
 module.exports = {
-
     createUserService,
-
     getUsersService,
-
     loginUserService,
-
     changePasswordService,
-
     uploadProfileImageService,
-
-    updateUserService
-
+    updateUserService,
 };

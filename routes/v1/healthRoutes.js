@@ -1,15 +1,13 @@
-const express = require('express');
+const express = require("express");
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-
+router.get("/", (req, res) => {
     res.status(200).json({
         success: true,
-        status: 'UP',
-        timestamp: new Date()
+        status: "UP",
+        timestamp: new Date(),
     });
-
 });
 
 module.exports = router;

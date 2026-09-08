@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 const createNotification = (notification) => {
     return new Promise((resolve, reject) => {
@@ -10,11 +10,7 @@ const createNotification = (notification) => {
 
         db.query(
             sql,
-            [
-                notification.id,
-                notification.userId,
-                notification.message
-            ],
+            [notification.id, notification.userId, notification.message],
             (err, result) => {
                 if (err) return reject(err);
                 resolve(result);
@@ -59,5 +55,5 @@ const markNotificationRead = (id) => {
 module.exports = {
     createNotification,
     getUserNotifications,
-    markNotificationRead
+    markNotificationRead,
 };

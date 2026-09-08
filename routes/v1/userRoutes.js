@@ -19,13 +19,13 @@
  *       200:
  *         description: Login successful
  */
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const authenticate = require('../../middleware/authMiddleware');
-const authorizeRoles = require('../../middleware/roleMiddleware');
-const upload = require('../../middleware/uploadMiddleware');
-const { authLimiter } = require('../../middleware/rateLimitMiddleware');
+const authenticate = require("../../middleware/authMiddleware");
+const authorizeRoles = require("../../middleware/roleMiddleware");
+const upload = require("../../middleware/uploadMiddleware");
+const { authLimiter } = require("../../middleware/rateLimitMiddleware");
 
 const {
     getUsers,
@@ -37,63 +37,39 @@ const {
     logoutUser,
     changePassword,
     uploadProfileImage,
-    getCurrentUser
-} = require('../../controllers/userController');
+    getCurrentUser,
+} = require("../../controllers/userController");
 
-const { body } = require('express-validator');
-const validate = require('../../middleware/validationMiddleware');
+const { body } = require("express-validator");
+const validate = require("../../middleware/validationMiddleware");
 
 router.get("/me", authenticate, getCurrentUser);
 
-router.get(
-    '/',
-    authenticate,
-    authorizeRoles("ADMIN"),
-    getUsers
-);
+router.get("/", authenticate, authorizeRoles("ADMIN"), getUsers);
 
 router.post(
-    '/',
+    "/",
     [
-        body('name').notEmpty().withMessage('Name is required'),
-        body('email').isEmail().withMessage('Valid email required')
+        body("name").notEmpty().withMessage("Name is required"),
+        body("email").isEmail().withMessage("Valid email required"),
     ],
     validate,
     createUser
 );
 
 // Login Route with Rate Limiter
-router.post('/login', authLimiter, loginUser);
+router.post("/login", authLimiter, loginUser);
 
-router.post('/refresh', refreshToken);
+router.post("/refresh", refreshToken);
 
-router.post('/logout', logoutUser);
+router.post("/logout", logoutUser);
 
-router.put(
-    "/change-password",
-    authenticate,
-    changePassword
-);
+router.put("/change-password", authenticate, changePassword);
 
-router.post(
-    "/profile-image",
-    authenticate,
-    upload.single("profileImage"),
-    uploadProfileImage
-);
+router.post("/profile-image", authenticate, upload.single("profileImage"), uploadProfileImage);
 
-router.put(
-    '/:id',
-    authenticate,
-    authorizeRoles("ADMIN"),
-    updateUser
-);
+router.put("/:id", authenticate, authorizeRoles("ADMIN"), updateUser);
 
-router.delete(
-    '/:id',
-    authenticate,
-    authorizeRoles("ADMIN"),
-    deleteUser
-);
+router.delete("/:id", authenticate, authorizeRoles("ADMIN"), deleteUser);
 
 module.exports = router;

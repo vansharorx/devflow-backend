@@ -1,7 +1,4 @@
-const {
-    createCommentService,
-    getIssueCommentsService
-} = require('../services/commentService');
+const { createCommentService, getIssueCommentsService } = require("../services/commentService");
 
 exports.createComment = async (req, res) => {
     try {
@@ -10,26 +7,20 @@ exports.createComment = async (req, res) => {
         const newComment = await createCommentService({
             issueId,
             userId: req.user.id,
-            comment
+            comment,
         });
 
         res.json({
             success: true,
             message: "Comment added",
-            data: newComment
+            data: newComment,
         });
-
-    } 
-    
-    catch (err) {
-        console.error(
-            "Failed to create comment:",
-            err
-        );
+    } catch (err) {
+        console.error("Failed to create comment:", err);
 
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 };
@@ -38,25 +29,18 @@ exports.getComments = async (req, res) => {
     try {
         const { issueId } = req.params;
 
-        const comments =
-            await getIssueCommentsService(issueId);
+        const comments = await getIssueCommentsService(issueId);
 
         res.json({
             success: true,
-            data: comments
+            data: comments,
         });
-
-    } 
-    
-    catch (err) {
-        console.error(
-            "Failed to fetch comments:",
-            err
-        );
+    } catch (err) {
+        console.error("Failed to fetch comments:", err);
 
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 };

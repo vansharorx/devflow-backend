@@ -5,11 +5,10 @@ const REFRESH_COOKIE_OPTIONS = {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: "/api/v1/users"
+    path: "/api/v1/users",
 };
 
 exports.googleCallback = async (req, res) => {
-
     const user = req.user;
 
     const accessToken = jwt.sign(
@@ -17,39 +16,29 @@ exports.googleCallback = async (req, res) => {
             id: user.id,
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
         },
         process.env.JWT_SECRET,
         {
-            expiresIn: "15m"
+            expiresIn: "15m",
         }
     );
 
     const refreshToken = jwt.sign(
         {
-            id: user.id
+            id: user.id,
         },
         process.env.JWT_REFRESH_SECRET,
         {
-            expiresIn: "7d"
+            expiresIn: "7d",
         }
     );
 
-    const { saveRefreshToken } =
-        require("../models/tokenModel");
+    const { saveRefreshToken } = require("../models/tokenModel");
 
-    await saveRefreshToken(
-        user.id,
-        refreshToken
-    );
+    await saveRefreshToken(user.id, refreshToken);
 
-    res.cookie(
-        "refreshToken",
-        refreshToken,
-        REFRESH_COOKIE_OPTIONS
-    );
+    res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTIONS);
 
-    res.redirect(
-        `http://localhost:5173/oauth-success?accessToken=${accessToken}`
-    );
+    res.redirect(`http://localhost:5173/oauth-success?accessToken=${accessToken}`);
 };

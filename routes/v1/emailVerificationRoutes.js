@@ -2,46 +2,29 @@ const express = require("express");
 
 const router = express.Router();
 
-const {
+const { body } = require("express-validator");
 
-    body
-
-} = require("express-validator");
-
-const validate =
-    require("../../middleware/validationMiddleware");
+const validate = require("../../middleware/validationMiddleware");
 
 const {
-
     sendVerificationEmail,
-    verifyEmail
-
+    verifyEmail,
 } = require("../../controllers/emailVerificationController");
 
 router.post(
-
     "/send",
 
-    [
-
-        body("email")
-            .isEmail()
-            .withMessage("Valid email is required")
-
-    ],
+    [body("email").isEmail().withMessage("Valid email is required")],
 
     validate,
 
     sendVerificationEmail
-
 );
 
 router.get(
-
     "/verify/:token",
 
     verifyEmail
-
 );
 
 module.exports = router;

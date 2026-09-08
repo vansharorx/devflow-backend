@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 const addActivity = (activity) => {
     return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ const addActivity = (activity) => {
                 activity.action,
                 activity.entityType,
                 activity.entityId,
-                activity.performedBy
+                activity.performedBy,
             ],
             (err, result) => {
                 if (err) return reject(err);
@@ -43,5 +43,5 @@ const getActivities = () => {
 
 module.exports = {
     addActivity,
-    getActivities
+    getActivities,
 };

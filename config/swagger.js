@@ -1,23 +1,23 @@
-const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerJsDoc = require("swagger-jsdoc");
 
 const options = {
     definition: {
-        openapi: '3.0.0',
+        openapi: "3.0.0",
 
         info: {
-            title: 'DevFlow API',
-            version: '1.0.0',
-            description: 'Issue Tracking Backend API'
+            title: "DevFlow API",
+            version: "1.0.0",
+            description: "Issue Tracking Backend API",
         },
 
         servers: [
             {
-                url: 'http://localhost:2005/api/v1'
-            }
-        ]
+                url: "http://localhost:2005/api/v1",
+            },
+        ],
     },
 
-    apis: ['./routes/v1/*.js']
+    apis: ["./routes/v1/*.js"],
 };
 
 const swaggerSpec = swaggerJsDoc(options);

@@ -1,6 +1,4 @@
-const {
-    getActivitiesService
-} = require('../services/activityService');
+const { getActivitiesService } = require("../services/activityService");
 
 exports.getActivities = async (req, res) => {
     try {
@@ -8,20 +6,14 @@ exports.getActivities = async (req, res) => {
 
         res.json({
             success: true,
-            data: activities
+            data: activities,
         });
-
-    } 
-    
-    catch (err) {
-        console.error(
-            "Failed to fetch activities:",
-            err
-        );
+    } catch (err) {
+        console.error("Failed to fetch activities:", err);
 
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 };

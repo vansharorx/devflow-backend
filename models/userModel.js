@@ -1,9 +1,7 @@
 const db = require("../config/db");
 
 const addUser = (user) => {
-
     return new Promise((resolve, reject) => {
-
         const sql = `
             INSERT INTO users
             (id, name, email, password, role, is_verified)
@@ -11,38 +9,22 @@ const addUser = (user) => {
         `;
 
         db.query(
-
             sql,
 
-            [
-                user.id,
-                user.name,
-                user.email,
-                user.password,
-                user.role,
-                false
-            ],
+            [user.id, user.name, user.email, user.password, user.role, false],
 
             (err, result) => {
-
                 if (err) return reject(err);
 
                 resolve(result);
-
             }
-
         );
-
     });
-
 };
 
 const getAllUsers = () => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             SELECT
                 id,
@@ -55,25 +37,17 @@ const getAllUsers = () => {
             `,
 
             (err, results) => {
-
                 if (err) return reject(err);
 
                 resolve(results);
-
             }
-
         );
-
     });
-
 };
 
 const findUserById = (id) => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             SELECT
                 id,
@@ -89,25 +63,17 @@ const findUserById = (id) => {
             [id],
 
             (err, results) => {
-
                 if (err) return reject(err);
 
                 resolve(results[0]);
-
             }
-
         );
-
     });
-
 };
 
 const findUserByEmail = (email) => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             SELECT *
             FROM users
@@ -118,25 +84,17 @@ const findUserByEmail = (email) => {
             [email],
 
             (err, results) => {
-
                 if (err) return reject(err);
 
                 resolve(results[0]);
-
             }
-
         );
-
     });
-
 };
 
 const findUserWithPasswordById = (id) => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             SELECT *
             FROM users
@@ -147,61 +105,37 @@ const findUserWithPasswordById = (id) => {
             [id],
 
             (err, results) => {
-
                 if (err) return reject(err);
 
                 resolve(results[0]);
-
             }
-
         );
-
     });
-
 };
 
-const updatePassword = (
-
-    id,
-    hashedPassword
-
-) => {
-
+const updatePassword = (id, hashedPassword) => {
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             UPDATE users
             SET password = ?
             WHERE id = ?
             `,
 
-            [
-                hashedPassword,
-                id
-            ],
+            [hashedPassword, id],
 
             (err, result) => {
-
                 if (err) return reject(err);
 
                 resolve(result);
-
             }
-
         );
-
     });
-
 };
 
 const verifyUser = (id) => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             UPDATE users
             SET is_verified = TRUE
@@ -211,56 +145,37 @@ const verifyUser = (id) => {
             [id],
 
             (err, result) => {
-
                 if (err) return reject(err);
 
                 resolve(result);
-
             }
-
         );
-
     });
-
 };
 
 const updateProfileImage = (id, profileImage) => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             UPDATE users
             SET profile_image = ?
             WHERE id = ?
             `,
 
-            [
-                profileImage,
-                id
-            ],
+            [profileImage, id],
 
             (err, result) => {
-
                 if (err) return reject(err);
 
                 resolve(result);
-
             }
-
         );
-
     });
-
 };
 
 const getProfileImage = (id) => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             SELECT profile_image
             FROM users
@@ -270,25 +185,17 @@ const getProfileImage = (id) => {
             [id],
 
             (err, results) => {
-
                 if (err) return reject(err);
 
                 resolve(results[0]);
-
             }
-
         );
-
     });
-
 };
 
 const updateUser = (id, name, email, role) => {
-
     return new Promise((resolve, reject) => {
-
         db.query(
-
             `
             UPDATE users
             SET
@@ -299,29 +206,18 @@ const updateUser = (id, name, email, role) => {
             AND is_deleted = FALSE
             `,
 
-            [
-                name,
-                email,
-                role,
-                id
-            ],
+            [name, email, role, id],
 
             (err, result) => {
-
                 if (err) return reject(err);
 
                 resolve(result);
-
             }
-
         );
-
     });
-
 };
 
 module.exports = {
-
     addUser,
     getAllUsers,
     findUserById,
@@ -331,5 +227,5 @@ module.exports = {
     verifyUser,
     updateProfileImage,
     getProfileImage,
-    updateUser
+    updateUser,
 };

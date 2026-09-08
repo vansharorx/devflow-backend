@@ -1,18 +1,11 @@
-const {
-    addComment,
-    getCommentsByIssue
-} = require('../models/commentModel');
+const { addComment, getCommentsByIssue } = require("../models/commentModel");
 
-const createCommentService = async ({
-    issueId,
-    userId,
-    comment
-}) => {
+const createCommentService = async ({ issueId, userId, comment }) => {
     const newComment = {
         id: Date.now(),
         issueId,
         userId,
-        comment
+        comment,
     };
 
     await addComment(newComment);
@@ -26,5 +19,5 @@ const getIssueCommentsService = async (issueId) => {
 
 module.exports = {
     createCommentService,
-    getIssueCommentsService
+    getIssueCommentsService,
 };

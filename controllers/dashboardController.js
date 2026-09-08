@@ -1,46 +1,21 @@
-const {
+const { getDashboardData } = require("../services/dashboardService");
 
-    getDashboardData
-
-} = require("../services/dashboardService");
-
-exports.getDashboardStats = async (
-
-    req,
-    res
-
-) => {
-
+exports.getDashboardStats = async (req, res) => {
     try {
-
-        const dashboardData =
-            await getDashboardData();
+        const dashboardData = await getDashboardData();
 
         res.json({
-
             success: true,
 
-            data: dashboardData
-
+            data: dashboardData,
         });
-
-    }
-
-    catch (err) {
-
-        console.error(
-            "Failed to fetch dashboard data:",
-            err
-        );
+    } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
 
         res.status(500).json({
-
             success: false,
 
-            message: "Internal server error"
-
+            message: "Internal server error",
         });
-
     }
-
 };

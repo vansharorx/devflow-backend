@@ -1,4 +1,5 @@
 # Devflow
+
 Enterprise-grade Issue Tracking System built using Node.js, Express.js, MySQL, JWT Authentication, Docker, Socket.IO and GitHub Actions.
 
 ## Features
@@ -20,21 +21,19 @@ Enterprise-grade Issue Tracking System built using Node.js, Express.js, MySQL, J
 - Rate Limiting
 - Health Monitoring
 
-
 ## Architecture
 
 Client
-   ↓
+↓
 REST API
-   ↓
+↓
 Controllers
-   ↓
+↓
 Services
-   ↓
+↓
 Models
-   ↓
+↓
 MySQL
-
 
 ## API Documentation
 

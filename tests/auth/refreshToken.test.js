@@ -6,30 +6,18 @@ const app = require("../../app");
 const db = require("../../config/db");
 
 jest.mock("../../services/emailVerificationService", () => ({
-    sendVerificationEmailService: jest
-        .fn()
-        .mockResolvedValue()
+    sendVerificationEmailService: jest.fn().mockResolvedValue(),
 }));
 
 const testEmails = new Set();
 const testTokens = new Set();
 
-const createTestUser = async ({
-    email,
-    isVerified = 1
-}) => {
+const createTestUser = async ({ email, isVerified = 1 }) => {
+    const password = await bcrypt.hash("TestPassword123!", 10);
 
-    const password = await bcrypt.hash(
-        "TestPassword123!",
-        10
-    );
-
-    const userId = Date.now() + Math.floor(
-        Math.random() * 100000
-    );
+    const userId = Date.now() + Math.floor(Math.random() * 100000);
 
     await new Promise((resolve, reject) => {
-
         db.query(
             `
             INSERT INTO users
@@ -43,16 +31,8 @@ const createTestUser = async ({
             )
             VALUES (?, ?, ?, ?, ?, ?)
             `,
-            [
-                userId,
-                "Refresh Token Test User",
-                email,
-                password,
-                "DEVELOPER",
-                isVerified
-            ],
+            [userId, "Refresh Token Test User", email, password, "DEVELOPER", isVerified],
             (err) => {
-
                 if (err) {
                     reject(err);
                     return;
@@ -61,40 +41,34 @@ const createTestUser = async ({
                 resolve();
             }
         );
-
     });
 
     testEmails.add(email);
 
     return {
         id: userId,
-        email
+        email,
     };
-
 };
 
 const createRefreshToken = (userId) => {
-
     const token = jwt.sign(
         {
-            id: userId
+            id: userId,
         },
         process.env.JWT_REFRESH_SECRET,
         {
-            expiresIn: "7d"
+            expiresIn: "7d",
         }
     );
 
     testTokens.add(token);
 
     return token;
-
 };
 
 const saveToken = async (userId, token) => {
-
     await new Promise((resolve, reject) => {
-
         db.query(
             `
             INSERT INTO refresh_tokens
@@ -104,12 +78,8 @@ const saveToken = async (userId, token) => {
             )
             VALUES (?, ?)
             `,
-            [
-                userId,
-                token
-            ],
+            [userId, token],
             (err) => {
-
                 if (err) {
                     reject(err);
                     return;
@@ -118,35 +88,24 @@ const saveToken = async (userId, token) => {
                 resolve();
             }
         );
-
     });
-
 };
 
 describe("POST /api/v1/users/refresh", () => {
-
     afterAll((done) => {
+        const emails = [...testEmails];
 
-        const emails = [
-            ...testEmails
-        ];
-
-        const tokens = [
-            ...testTokens
-        ];
+        const tokens = [...testTokens];
 
         const cleanupUsers = () => {
-
             if (emails.length === 0) {
-
                 db.end();
                 done();
 
                 return;
             }
 
-            const placeholders =
-                emails.map(() => "?").join(",");
+            const placeholders = emails.map(() => "?").join(",");
 
             db.query(
                 `
@@ -155,19 +114,14 @@ describe("POST /api/v1/users/refresh", () => {
                 `,
                 emails,
                 () => {
-
                     db.end();
                     done();
-
                 }
             );
-
         };
 
         if (tokens.length > 0) {
-
-            const placeholders =
-                tokens.map(() => "?").join(",");
+            const placeholders = tokens.map(() => "?").join(",");
 
             db.query(
                 `
@@ -176,199 +130,111 @@ describe("POST /api/v1/users/refresh", () => {
                 `,
                 tokens,
                 () => {
-
                     cleanupUsers();
-
                 }
             );
-
         } else {
-
             cleanupUsers();
-
         }
-
     });
 
-    test(
-        "returns a new access token for a valid refresh token",
-        async () => {
+    test("returns a new access token for a valid refresh token", async () => {
+        const email = `refresh-valid-${Date.now()}@devflow.test`;
 
-            const email =
-                `refresh-valid-${Date.now()}@devflow.test`;
+        const user = await createTestUser({
+            email,
+        });
 
-            const user =
-                await createTestUser({
-                    email
-                });
+        const refreshToken = createRefreshToken(user.id);
 
-            const refreshToken =
-                createRefreshToken(user.id);
+        await saveToken(user.id, refreshToken);
 
-            await saveToken(
-                user.id,
-                refreshToken
-            );
+        const response = await request(app)
+            .post("/api/v1/users/refresh")
+            .set("Cookie", `refreshToken=${refreshToken}`);
 
-            const response =
-                await request(app)
-                    .post("/api/v1/users/refresh")
-                    .set(
-                        "Cookie",
-                        `refreshToken=${refreshToken}`
-                    );
+        expect(response.statusCode).toBe(200);
 
-            expect(response.statusCode)
-                .toBe(200);
+        expect(response.body.success).toBe(true);
 
-            expect(response.body.success)
-                .toBe(true);
+        expect(response.body.accessToken).toBeDefined();
 
-            expect(response.body.accessToken)
-                .toBeDefined();
+        const decoded = jwt.verify(response.body.accessToken, process.env.JWT_SECRET);
 
-            const decoded =
-                jwt.verify(
-                    response.body.accessToken,
-                    process.env.JWT_SECRET
-                );
+        expect(decoded.id).toBe(user.id);
 
-            expect(decoded.id)
-                .toBe(user.id);
+        expect(decoded.email).toBe(email);
 
-            expect(decoded.email)
-                .toBe(email);
+        expect(decoded.role).toBe("DEVELOPER");
+    });
 
-            expect(decoded.role)
-                .toBe("DEVELOPER");
+    test("rejects refresh when token is missing", async () => {
+        const response = await request(app).post("/api/v1/users/refresh").send({});
 
-        }
-    );
+        expect(response.statusCode).toBe(401);
 
-    test(
-        "rejects refresh when token is missing",
-        async () => {
+        expect(response.body.success).toBe(false);
 
-            const response =
-                await request(app)
-                    .post("/api/v1/users/refresh")
-                    .send({});
+        expect(response.body.message).toBe("Refresh token required");
+    });
 
-            expect(response.statusCode)
-                .toBe(401);
+    test("rejects a refresh token that is not stored", async () => {
+        const user = await createTestUser({
+            email: `refresh-not-stored-${Date.now()}@devflow.test`,
+        });
 
-            expect(response.body.success)
-                .toBe(false);
+        const refreshToken = createRefreshToken(user.id);
 
-            expect(response.body.message)
-                .toBe("Refresh token required");
+        const response = await request(app)
+            .post("/api/v1/users/refresh")
+            .set("Cookie", `refreshToken=${refreshToken}`);
 
-        }
-    );
+        expect(response.statusCode).toBe(403);
 
-    test(
-        "rejects a refresh token that is not stored",
-        async () => {
+        expect(response.body.success).toBe(false);
 
-            const user =
-                await createTestUser({
-                    email:
-                        `refresh-not-stored-${Date.now()}@devflow.test`
-                });
+        expect(response.body.message).toBe("Token not valid");
+    });
 
-            const refreshToken =
-                createRefreshToken(user.id);
+    test("rejects an invalid refresh token", async () => {
+        const response = await request(app)
+            .post("/api/v1/users/refresh")
+            .set("Cookie", "refreshToken=invalid-refresh-token");
 
-            const response =
-                await request(app)
-                    .post("/api/v1/users/refresh")
-                    .set(
-                        "Cookie",
-                        `refreshToken=${refreshToken}`
-                    );
+        expect(response.statusCode).toBe(403);
 
-            expect(response.statusCode)
-                .toBe(403);
+        expect(response.body.success).toBe(false);
 
-            expect(response.body.success)
-                .toBe(false);
+        expect(response.body.message).toBe("Token not valid");
+    });
 
-            expect(response.body.message)
-                .toBe("Token not valid");
+    test("rejects an expired refresh token", async () => {
+        const user = await createTestUser({
+            email: `refresh-expired-${Date.now()}@devflow.test`,
+        });
 
-        }
-    );
+        const expiredToken = jwt.sign(
+            {
+                id: user.id,
+            },
+            process.env.JWT_REFRESH_SECRET,
+            {
+                expiresIn: "-1s",
+            }
+        );
 
-    test(
-        "rejects an invalid refresh token",
-        async () => {
+        testTokens.add(expiredToken);
 
-            const response =
-                await request(app)
-                    .post("/api/v1/users/refresh")
-                    .set(
-                        "Cookie",
-                        "refreshToken=invalid-refresh-token"
-                    );
+        await saveToken(user.id, expiredToken);
 
-            expect(response.statusCode)
-                .toBe(403);
+        const response = await request(app)
+            .post("/api/v1/users/refresh")
+            .set("Cookie", `refreshToken=${expiredToken}`);
 
-            expect(response.body.success)
-                .toBe(false);
+        expect(response.statusCode).toBe(403);
 
-            expect(response.body.message)
-                .toBe("Token not valid");
+        expect(response.body.success).toBe(false);
 
-        }
-    );
-
-    test(
-        "rejects an expired refresh token",
-        async () => {
-
-            const user =
-                await createTestUser({
-                    email:
-                        `refresh-expired-${Date.now()}@devflow.test`
-                });
-
-            const expiredToken =
-                jwt.sign(
-                    {
-                        id: user.id
-                    },
-                    process.env.JWT_REFRESH_SECRET,
-                    {
-                        expiresIn: "-1s"
-                    }
-                );
-
-            testTokens.add(expiredToken);
-
-            await saveToken(
-                user.id,
-                expiredToken
-            );
-
-            const response =
-                await request(app)
-                    .post("/api/v1/users/refresh")
-                    .set(
-                        "Cookie",
-                        `refreshToken=${expiredToken}`
-                    );
-
-            expect(response.statusCode)
-                .toBe(403);
-
-            expect(response.body.success)
-                .toBe(false);
-
-            expect(response.body.message)
-                .toBe("Invalid refresh token");
-
-        }
-    );
-
+        expect(response.body.message).toBe("Invalid refresh token");
+    });
 });

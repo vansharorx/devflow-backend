@@ -1,31 +1,30 @@
 services:
+    backend:
+        build: .
 
-  backend:
-    build: .
+        ports:
+            - "2005:2005"
 
-    ports:
-      - "2005:2005"
+        depends_on:
+            - mysql
 
-    depends_on:
-      - mysql
+        env_file:
+            - .env.development
 
-    env_file:
-      - .env.development
+        environment:
+            DB_HOST: mysql
 
-    environment:
-      DB_HOST: mysql
+    mysql:
+        image: mysql:8
 
-  mysql:
-    image: mysql:8
+        restart: always
 
-    restart: always
+        env_file:
+            - .env.development
 
-    env_file:
-      - .env.development
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${DB_NAME}
 
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-
-    ports:
-      - "3307:3306"
+        ports:
+            - "3307:3306"

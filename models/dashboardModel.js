@@ -1,7 +1,6 @@
 const db = require("../config/db");
 
 const getTotalCounts = async () => {
-
     const [[userCount]] = await db.promise().query(`
         SELECT COUNT(*) AS totalUsers
         FROM users
@@ -21,17 +20,13 @@ const getTotalCounts = async () => {
     `);
 
     return {
-
         users: userCount.totalUsers,
         projects: projectCount.totalProjects,
-        issues: issueCount.totalIssues
-
+        issues: issueCount.totalIssues,
     };
-
 };
 
 const getIssueStatus = async () => {
-
     const [rows] = await db.promise().query(`
         SELECT
             status,
@@ -42,42 +37,31 @@ const getIssueStatus = async () => {
     `);
 
     const issuesByStatus = {
-
         open: 0,
         inProgress: 0,
-        closed: 0
-
+        closed: 0,
     };
 
-    rows.forEach(row => {
-
+    rows.forEach((row) => {
         switch (row.status.toLowerCase()) {
-
             case "open":
-
                 issuesByStatus.open = Number(row.count);
                 break;
 
             case "in progress":
-
                 issuesByStatus.inProgress = Number(row.count);
                 break;
 
             case "closed":
-
                 issuesByStatus.closed = Number(row.count);
                 break;
-
         }
-
     });
 
     return issuesByStatus;
-
 };
 
 const getTopUsers = async () => {
-
     const [rows] = await db.promise().query(`
         SELECT
             u.id,
@@ -93,11 +77,9 @@ const getTopUsers = async () => {
     `);
 
     return rows;
-
 };
 
 const getTopProjects = async () => {
-
     const [rows] = await db.promise().query(`
         SELECT
             p.id,
@@ -113,11 +95,9 @@ const getTopProjects = async () => {
     `);
 
     return rows;
-
 };
 
 const getWeeklyActivity = async () => {
-
     const [rows] = await db.promise().query(`
 
         SELECT
@@ -141,11 +121,9 @@ const getWeeklyActivity = async () => {
     `);
 
     return rows;
-
 };
 
 const getProjectProgress = async () => {
-
     const [rows] = await db.promise().query(`
 
         SELECT
@@ -184,32 +162,19 @@ const getProjectProgress = async () => {
 
     `);
 
-    return rows.map(project => ({
-
+    return rows.map((project) => ({
         id: project.id,
 
         name: project.name,
 
         progress:
-
             project.totalIssues === 0
-
                 ? 0
-
-                : Math.round(
-
-                    (project.completedIssues /
-
-                        project.totalIssues) * 100
-
-                )
-
+                : Math.round((project.completedIssues / project.totalIssues) * 100),
     }));
-
 };
 
 const getRecentActivities = async () => {
-
     const [rows] = await db.promise().query(`
 
         SELECT
@@ -231,17 +196,14 @@ const getRecentActivities = async () => {
     `);
 
     return rows;
-
 };
 
 module.exports = {
-
     getTotalCounts,
     getIssueStatus,
     getTopUsers,
     getTopProjects,
     getWeeklyActivity,
     getProjectProgress,
-    getRecentActivities
-
+    getRecentActivities,
 };

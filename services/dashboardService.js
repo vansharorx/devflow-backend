@@ -1,55 +1,43 @@
 const {
-
     getTotalCounts,
     getIssueStatus,
     getTopUsers,
     getTopProjects,
     getWeeklyActivity,
     getProjectProgress,
-    getRecentActivities
-
+    getRecentActivities,
 } = require("../models/dashboardModel");
 
 const getDashboardData = async () => {
-
     const [
-
         totals,
         issuesByStatus,
         topUsers,
         topProjects,
         weeklyActivity,
         projectProgress,
-        recentActivities
-
+        recentActivities,
     ] = await Promise.all([
-
         getTotalCounts(),
         getIssueStatus(),
         getTopUsers(),
         getTopProjects(),
         getWeeklyActivity(),
         getProjectProgress(),
-        getRecentActivities()
-
+        getRecentActivities(),
     ]);
 
     return {
-
         totals,
         issuesByStatus,
         weeklyActivity,
         projectProgress,
         recentActivities,
         topUsers,
-        topProjects
-
+        topProjects,
     };
-
 };
 
 module.exports = {
-
-    getDashboardData
-
+    getDashboardData,
 };

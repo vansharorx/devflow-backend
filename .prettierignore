@@ -1,0 +1,9 @@
+node_modules/
+logs/
+uploads/
+.env
+.env.*
+!.env.example
+dist/
+build/
+coverage/

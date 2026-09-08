@@ -2,50 +2,25 @@ const passport = require("passport");
 
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-const {
-    findUserByEmail,
-    addUser
-} = require("../models/userModel");
+const { findUserByEmail, addUser } = require("../models/userModel");
 
-if (
-    process.env.GOOGLE_CLIENT_ID &&
-    process.env.GOOGLE_CLIENT_SECRET
-) {
-
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(
-
         new GoogleStrategy(
-
             {
-
                 clientID: process.env.GOOGLE_CLIENT_ID,
 
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 
-                callbackURL: process.env.GOOGLE_CALLBACK_URL
-
+                callbackURL: process.env.GOOGLE_CALLBACK_URL,
             },
 
-            async (
-
-                accessToken,
-                refreshToken,
-                profile,
-                done
-
-            ) => {
-
+            async (accessToken, refreshToken, profile, done) => {
                 try {
-
-                    let user =
-                        await findUserByEmail(
-                            profile.emails[0].value
-                        );
+                    let user = await findUserByEmail(profile.emails[0].value);
 
                     if (!user) {
-
                         const newUser = {
-
                             id: Date.now(),
 
                             name: profile.displayName,
@@ -56,82 +31,43 @@ if (
 
                             role: "DEVELOPER",
 
-                            is_verified: true
-
+                            is_verified: true,
                         };
 
                         await addUser(newUser);
 
                         user = newUser;
-
                     }
 
                     return done(
-
                         null,
 
                         user
-
                     );
-
+                } catch (err) {
+                    return done(err, null);
                 }
-                catch (err) {
-
-                    return done(
-
-                        err,
-                        null
-
-                    );
-
-                }
-
             }
-
         )
-
     );
-
-}
-else {
-
+} else {
     console.warn(
         "⚠ Google OAuth is disabled because GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing."
     );
-
 }
 
-passport.serializeUser(
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
 
-    (user, done) => {
+passport.deserializeUser(async (id, done) => {
+    done(
+        null,
 
-        done(
-
-            null,
-            user.id
-
-        );
-
-    }
-
-);
-
-passport.deserializeUser(
-
-    async (id, done) => {
-
-        done(
-
-            null,
-
-            {
-                id
-            }
-
-        );
-
-    }
-
-);
+        {
+            id,
+        }
+    );
+});
 
 module.exports = passport;

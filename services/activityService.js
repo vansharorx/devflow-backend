@@ -1,20 +1,12 @@
-const {
-    addActivity,
-    getActivities
-} = require('../models/activityModel');
+const { addActivity, getActivities } = require("../models/activityModel");
 
-const createActivityService = async ({
-    action,
-    entityType,
-    entityId,
-    performedBy
-}) => {
+const createActivityService = async ({ action, entityType, entityId, performedBy }) => {
     const activity = {
         id: Date.now(),
         action,
         entityType,
         entityId,
-        performedBy
+        performedBy,
     };
 
     await addActivity(activity);
@@ -26,5 +18,5 @@ const getActivitiesService = async () => {
 
 module.exports = {
     createActivityService,
-    getActivitiesService
+    getActivitiesService,
 };

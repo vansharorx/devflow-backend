@@ -1,7 +1,4 @@
-const {
-    forgotPasswordService,
-    resetPasswordService
-} = require("../services/passwordService");
+const { forgotPasswordService, resetPasswordService } = require("../services/passwordService");
 
 exports.forgotPassword = async (req, res) => {
     try {
@@ -11,29 +8,23 @@ exports.forgotPassword = async (req, res) => {
 
         res.json({
             success: true,
-            message: "Password reset link sent successfully."
+            message: "Password reset link sent successfully.",
         });
-
     } catch (err) {
-        console.error(
-            "Failed to process forgot password request:",
-            err
-        );
+        console.error("Failed to process forgot password request:", err);
 
-        const safeMessages = [
-            "No account found with this email."
-        ];
+        const safeMessages = ["No account found with this email."];
 
         if (safeMessages.includes(err.message)) {
             return res.status(400).json({
                 success: false,
-                message: err.message
+                message: err.message,
             });
         }
 
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 };
@@ -43,37 +34,27 @@ exports.resetPassword = async (req, res) => {
         const { token } = req.params;
         const { password } = req.body;
 
-        await resetPasswordService(
-            token,
-            password
-        );
+        await resetPasswordService(token, password);
 
         res.json({
             success: true,
-            message: "Password reset successful."
+            message: "Password reset successful.",
         });
-
     } catch (err) {
-        console.error(
-            "Failed to reset password:",
-            err
-        );
+        console.error("Failed to reset password:", err);
 
-        const safeMessages = [
-            "Invalid password reset link.",
-            "Password reset link has expired."
-        ];
+        const safeMessages = ["Invalid password reset link.", "Password reset link has expired."];
 
         if (safeMessages.includes(err.message)) {
             return res.status(400).json({
                 success: false,
-                message: err.message
+                message: err.message,
             });
         }
 
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 };
