@@ -40,5 +40,7 @@ exports.googleCallback = async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTIONS);
 
-    res.redirect(`http://localhost:5173/oauth-success?accessToken=${accessToken}`);
+    res.redirect(
+        `${process.env.FRONTEND_URL}/oauth-success?accessToken=${accessToken}`
+    );
 };

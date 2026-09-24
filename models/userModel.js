@@ -30,7 +30,7 @@ const getAllUsers = () => {
                 id,
                 name,
                 email,
-                role
+                role,
                 profile_image
             FROM users
             WHERE is_deleted = FALSE
