@@ -8,9 +8,14 @@ const errorHandler = (err, req, res, next) => {
         method: req.method,
     });
 
-    res.status(500).json({
+    const statusCode = err.statusCode || err.status || 500;
+
+    res.status(statusCode).json({
         success: false,
-        message: "Something went wrong",
+        message:
+            statusCode >= 500
+                ? "Something went wrong"
+                : err.message || "Request failed",
     });
 };
 
