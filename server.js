@@ -8,12 +8,14 @@ const startCleanupJob = require("./jobs/cleanupJob");
 
 const PORT = process.env.PORT || 2005;
 
+/* HTTP Server */
 const server = http.createServer(app);
 
 /* Socket.IO */
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
     },
 });
 
