@@ -354,7 +354,7 @@ describe("Issue routes", () => {
             .put(`/api/v1/issues/${issue.id}/status`)
             .set("Authorization", `Bearer ${managerToken}`)
             .send({
-                status: "IN_PROGRESS",
+                status: "CLOSED",
             });
 
         expect(response.statusCode).toBe(200);
@@ -378,7 +378,7 @@ describe("Issue routes", () => {
             );
         });
 
-        expect(databaseIssue.status).toBe("IN_PROGRESS");
+        expect(databaseIssue.status).toBe("CLOSED");
     });
 
     test("denies issue status update for a manager who is not a project member", async () => {
