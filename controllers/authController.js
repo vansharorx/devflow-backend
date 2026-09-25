@@ -11,19 +11,6 @@ const REFRESH_COOKIE_OPTIONS = {
 exports.googleCallback = async (req, res) => {
     const user = req.user;
 
-    const accessToken = jwt.sign(
-        {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: "15m",
-        }
-    );
-
     const refreshToken = jwt.sign(
         {
             id: user.id,
@@ -40,7 +27,5 @@ exports.googleCallback = async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTIONS);
 
-    res.redirect(
-        `${process.env.FRONTEND_URL}/oauth-success?accessToken=${accessToken}`
-    );
+    res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
 };
