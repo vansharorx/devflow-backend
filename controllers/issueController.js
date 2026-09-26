@@ -3,7 +3,6 @@ const {
     getIssuesService,
     searchIssuesService,
     updateIssueStatus: updateIssueStatusService,
-    assignIssue: assignIssueService,
     findIssueById,
     getDetailedIssuesService,
     getFilteredIssuesService,
@@ -11,31 +10,21 @@ const {
     deleteIssueService,
 } = require("../services/issueService");
 
-const { sendAssignmentEmail } = require("../utils/mailer");
-const { findUserById } = require("../models/userModel");
+const asyncHandler = require("../middleware/asyncHandler");
+const AppError = require("../utils/AppError");
+
 const { createActivityService } = require("../services/activityService");
 
-const { createNotificationService } = require("../services/notificationService");
+exports.getIssues = asyncHandler(async (req, res) => {
+    const issues = await getIssuesService(req.user);
 
-exports.getIssues = async (req, res) => {
-    try {
-        const issues = await getIssuesService(req.user);
+    res.json({
+        success: true,
+        data: issues,
+    });
+});
 
-        res.json({
-            success: true,
-            data: issues,
-        });
-    } catch (err) {
-        console.error("Failed to fetch issues:", err);
-
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
-
-exports.createIssue = async (req, res) => {
+exports.createIssue = asyncHandler(async (req, res) => {
     try {
         const issue = await createIssueService({
             ...req.body,
@@ -55,192 +44,115 @@ exports.createIssue = async (req, res) => {
             data: issue,
         });
     } catch (err) {
-        console.error("Failed to create issue:", err);
-
         const safeMessages = ["Project not found", "User not found"];
 
         if (safeMessages.includes(err.message)) {
-            return res.status(400).json({
-                success: false,
-                message: err.message,
-            });
+            throw new AppError(err.message, 400);
         }
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
+        throw err;
     }
-};
+});
 
-exports.updateIssueStatus = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { status } = req.body;
+exports.updateIssueStatus = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
 
-        await updateIssueStatusService(id, status);
+    await updateIssueStatusService(id, status);
 
-        res.json({
-            success: true,
-            message: "Status updated",
-        });
-    } catch (err) {
-        console.error("Failed to update issue status:", err);
+    res.json({
+        success: true,
+        message: "Status updated",
+    });
+});
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
+exports.assignIssue = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    const issue = await findIssueById(id);
+
+    if (!issue) {
+        throw new AppError("Issue not found", 404);
     }
-};
 
-exports.assignIssue = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { userId } = req.body;
+    await transactionalAssignIssue({
+        issueId: id,
+        userId,
+        issueTitle: issue.title,
+    });
 
-        const issue = await findIssueById(id);
+    const io = req.app.get("io");
 
-        if (!issue) {
-            return res.status(404).json({
-                success: false,
-                message: "Issue not found",
-            });
-        }
+    io.emit("notification");
 
-        await transactionalAssignIssue({
-            issueId: id,
-            userId,
-            issueTitle: issue.title,
-        });
+    res.json({
+        success: true,
+        message: "Issue assigned successfully",
+    });
+});
 
-        const io = req.app.get("io");
+exports.getIssueHistory = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-        io.emit("notification");
+    const issue = await findIssueById(id);
 
-        res.json({
-            success: true,
-            message: "Issue assigned successfully",
-        });
-    } catch (err) {
-        console.error("Failed to assign issue:", err);
+    res.json({
+        success: true,
+        message: "Issue history fetched",
+        data: issue || [],
+    });
+});
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
+exports.getDetailedIssues = asyncHandler(async (req, res) => {
+    const data = await getDetailedIssuesService();
+
+    res.json({
+        success: true,
+        data,
+    });
+});
+
+exports.getFilteredIssues = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 5, status, projectId } = req.query;
+
+    const data = await getFilteredIssuesService({
+        page,
+        limit,
+        status,
+        projectId,
+    });
+
+    res.json({
+        success: true,
+        page: Number(page),
+        limit: Number(limit),
+        data,
+    });
+});
+
+exports.searchIssues = asyncHandler(async (req, res) => {
+    const { query } = req.query;
+
+    if (!query) {
+        throw new AppError("Search query is required", 400);
     }
-};
 
-exports.getIssueHistory = async (req, res) => {
-    try {
-        const { id } = req.params;
+    const issues = await searchIssuesService(query, req.user);
 
-        const issue = await findIssueById(id);
+    res.json({
+        success: true,
+        results: issues,
+    });
+});
 
-        res.json({
-            success: true,
-            message: "Issue history fetched",
-            data: issue || [],
-        });
-    } catch (err) {
-        console.error("Failed to fetch issue history:", err);
+exports.deleteIssue = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    await deleteIssueService(id);
 
-exports.getDetailedIssues = async (req, res) => {
-    try {
-        const data = await getDetailedIssuesService();
-
-        res.json({
-            success: true,
-            data,
-        });
-    } catch (err) {
-        console.error("Failed to fetch detailed issues:", err);
-
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
-
-exports.getFilteredIssues = async (req, res) => {
-    try {
-        const { page = 1, limit = 5, status, projectId } = req.query;
-
-        const data = await getFilteredIssuesService({
-            page,
-            limit,
-            status,
-            projectId,
-        });
-
-        res.json({
-            success: true,
-            page: Number(page),
-            limit: Number(limit),
-            data,
-        });
-    } catch (err) {
-        console.error("Failed to fetch filtered issues:", err);
-
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
-
-exports.searchIssues = async (req, res) => {
-    try {
-        const { query } = req.query;
-
-        if (!query) {
-            return res.status(400).json({
-                success: false,
-                message: "Search query is required",
-            });
-        }
-
-        const issues = await searchIssuesService(query, req.user);
-
-        res.json({
-            success: true,
-            results: issues,
-        });
-    } catch (err) {
-        console.error("Failed to search issues:", err);
-
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
-
-exports.deleteIssue = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        await deleteIssueService(id);
-
-        res.json({
-            success: true,
-            message: "Issue deleted successfully",
-        });
-    } catch (err) {
-        console.error("Failed to delete issue:", err);
-
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    res.json({
+        success: true,
+        message: "Issue deleted successfully",
+    });
+});

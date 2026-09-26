@@ -15,14 +15,22 @@ const {
 const { findProjectById } = require("../models/projectModel");
 const { findUserById } = require("../models/userModel");
 
+const AppError = require("../utils/AppError");
+
 const createIssueService = async (data) => {
     const { title, description, projectId, createdBy } = data;
 
     const project = await findProjectById(projectId);
-    if (!project) throw new Error("Project not found");
+
+    if (!project) {
+        throw new AppError("Project not found", 400);
+    }
 
     const user = await findUserById(createdBy);
-    if (!user) throw new Error("User not found");
+
+    if (!user) {
+        throw new AppError("User not found", 400);
+    }
 
     const newIssue = {
         id: Date.now(),
@@ -36,6 +44,7 @@ const createIssueService = async (data) => {
     };
 
     await addIssue(newIssue);
+
     return newIssue;
 };
 
@@ -59,28 +68,28 @@ const transactionalAssignIssue = async ({ issueId, userId, issueTitle }) => {
 
         await connection.query(
             `
-      UPDATE issues
-      SET assigned_to = ?
-      WHERE id = ?
-      `,
+            UPDATE issues
+            SET assigned_to = ?
+            WHERE id = ?
+            `,
             [userId, issueId]
         );
 
         await connection.query(
             `
-      INSERT INTO notifications
-      (id, user_id, message)
-      VALUES (?, ?, ?)
-      `,
+            INSERT INTO notifications
+            (id, user_id, message)
+            VALUES (?, ?, ?)
+            `,
             [Date.now(), userId, `You were assigned issue: ${issueTitle}`]
         );
 
         await connection.query(
             `
-      INSERT INTO activities
-      (id, action, entity_type, entity_id, performed_by)
-      VALUES (?, ?, ?, ?, ?)
-      `,
+            INSERT INTO activities
+            (id, action, entity_type, entity_id, performed_by)
+            VALUES (?, ?, ?, ?, ?)
+            `,
             [Date.now() + 1, "Issue Assigned", "ISSUE", issueId, userId]
         );
 
