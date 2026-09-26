@@ -1,5 +1,8 @@
 const jwt = require("jsonwebtoken");
 
+const asyncHandler = require("../middleware/asyncHandler");
+const { saveRefreshTokenService } = require("../services/authService");
+
 const REFRESH_COOKIE_OPTIONS = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -8,7 +11,7 @@ const REFRESH_COOKIE_OPTIONS = {
     path: "/api/v1/users",
 };
 
-exports.googleCallback = async (req, res) => {
+exports.googleCallback = asyncHandler(async (req, res) => {
     const user = req.user;
 
     const refreshToken = jwt.sign(
@@ -21,11 +24,9 @@ exports.googleCallback = async (req, res) => {
         }
     );
 
-    const { saveRefreshToken } = require("../models/tokenModel");
-
-    await saveRefreshToken(user.id, refreshToken);
+    await saveRefreshTokenService(user.id, refreshToken);
 
     res.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTIONS);
 
     res.redirect(`${process.env.FRONTEND_URL}/oauth-success`);
-};
+});

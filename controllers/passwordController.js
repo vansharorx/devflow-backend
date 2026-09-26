@@ -1,60 +1,29 @@
-const { forgotPasswordService, resetPasswordService } = require("../services/passwordService");
+const asyncHandler = require("../middleware/asyncHandler");
 
-exports.forgotPassword = async (req, res) => {
-    try {
-        const { email } = req.body;
+const {
+    forgotPasswordService,
+    resetPasswordService,
+} = require("../services/passwordService");
 
-        await forgotPasswordService(email);
+exports.forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
 
-        res.json({
-            success: true,
-            message: "Password reset link sent successfully.",
-        });
-    } catch (err) {
-        console.error("Failed to process forgot password request:", err);
+    await forgotPasswordService(email);
 
-        const safeMessages = ["No account found with this email."];
+    res.json({
+        success: true,
+        message: "Password reset link sent successfully.",
+    });
+});
 
-        if (safeMessages.includes(err.message)) {
-            return res.status(400).json({
-                success: false,
-                message: err.message,
-            });
-        }
+exports.resetPassword = asyncHandler(async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    await resetPasswordService(token, password);
 
-exports.resetPassword = async (req, res) => {
-    try {
-        const { token } = req.params;
-        const { password } = req.body;
-
-        await resetPasswordService(token, password);
-
-        res.json({
-            success: true,
-            message: "Password reset successful.",
-        });
-    } catch (err) {
-        console.error("Failed to reset password:", err);
-
-        const safeMessages = ["Invalid password reset link.", "Password reset link has expired."];
-
-        if (safeMessages.includes(err.message)) {
-            return res.status(400).json({
-                success: false,
-                message: err.message,
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    res.json({
+        success: true,
+        message: "Password reset successful.",
+    });
+});

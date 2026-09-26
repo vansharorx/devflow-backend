@@ -10,16 +10,17 @@ const {
 } = require("../models/emailVerificationModel");
 
 const { sendVerificationEmail } = require("../utils/mailer");
+const AppError = require("../utils/AppError");
 
 const sendVerificationEmailService = async (email) => {
     const user = await findUserByEmail(email);
 
     if (!user) {
-        throw new Error("User not found.");
+        throw new AppError("User not found.", 400);
     }
 
     if (user.is_verified) {
-        throw new Error("Email is already verified.");
+        throw new AppError("Email is already verified.", 400);
     }
 
     await deleteVerificationTokensByUserId(user.id);
@@ -30,34 +31,27 @@ const sendVerificationEmailService = async (email) => {
 
     await saveVerificationToken({
         id: Date.now(),
-
         userId: user.id,
-
         token,
-
         expiresAt,
     });
 
     const verificationLink = `http://localhost:5173/verify-email/${token}`;
 
-    await sendVerificationEmail(
-        user.email,
-
-        verificationLink
-    );
+    await sendVerificationEmail(user.email, verificationLink);
 };
 
 const verifyEmailService = async (token) => {
     const storedToken = await findVerificationToken(token);
 
     if (!storedToken) {
-        throw new Error("Invalid verification link.");
+        throw new AppError("Invalid verification link.", 400);
     }
 
     if (new Date(storedToken.expires_at) < new Date()) {
         await deleteVerificationToken(token);
 
-        throw new Error("Verification link has expired.");
+        throw new AppError("Verification link has expired.", 400);
     }
 
     await verifyUser(storedToken.user_id);

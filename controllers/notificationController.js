@@ -1,42 +1,30 @@
-const { getNotificationsService, markReadService } = require("../services/notificationService");
+const asyncHandler = require("../middleware/asyncHandler");
 
-exports.getNotifications = async (req, res) => {
-    try {
-        const notifications = await getNotificationsService(req.user.id);
+const {
+    getNotificationsService,
+    markReadService,
+} = require("../services/notificationService");
 
-        res.json({
-            success: true,
-            data: notifications,
-        });
-    } catch (err) {
-        console.error("Failed to fetch notifications:", err);
+exports.getNotifications = asyncHandler(async (req, res) => {
+    const notifications = await getNotificationsService(req.user.id);
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    res.json({
+        success: true,
+        data: notifications,
+    });
+});
 
-exports.markAsRead = async (req, res) => {
-    try {
-        const { id } = req.params;
+exports.markAsRead = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-        await markReadService(id);
+    await markReadService(id);
 
-        const io = req.app.get("io");
-        io.emit("notification");
+    const io = req.app.get("io");
 
-        res.json({
-            success: true,
-            message: "Notification marked as read",
-        });
-    } catch (err) {
-        console.error("Failed to mark notification as read:", err);
+    io.emit("notification");
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    res.json({
+        success: true,
+        message: "Notification marked as read",
+    });
+});

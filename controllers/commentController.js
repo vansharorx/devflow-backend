@@ -1,46 +1,33 @@
-const { createCommentService, getIssueCommentsService } = require("../services/commentService");
+const asyncHandler = require("../middleware/asyncHandler");
 
-exports.createComment = async (req, res) => {
-    try {
-        const { issueId, comment } = req.body;
-        console.log("BODY:", req.body);
-        const newComment = await createCommentService({
-            issueId,
-            userId: req.user.id,
-            comment,
-        });
+const {
+    createCommentService,
+    getIssueCommentsService,
+} = require("../services/commentService");
 
-        res.json({
-            success: true,
-            message: "Comment added",
-            data: newComment,
-        });
-    } catch (err) {
-        console.error("Failed to create comment:", err);
+exports.createComment = asyncHandler(async (req, res) => {
+    const { issueId, comment } = req.body;
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    const newComment = await createCommentService({
+        issueId,
+        userId: req.user.id,
+        comment,
+    });
 
-exports.getComments = async (req, res) => {
-    try {
-        const { issueId } = req.params;
+    res.json({
+        success: true,
+        message: "Comment added",
+        data: newComment,
+    });
+});
 
-        const comments = await getIssueCommentsService(issueId);
+exports.getComments = asyncHandler(async (req, res) => {
+    const { issueId } = req.params;
 
-        res.json({
-            success: true,
-            data: comments,
-        });
-    } catch (err) {
-        console.error("Failed to fetch comments:", err);
+    const comments = await getIssueCommentsService(issueId);
 
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
-};
+    res.json({
+        success: true,
+        data: comments,
+    });
+});

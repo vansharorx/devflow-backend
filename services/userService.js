@@ -3,20 +3,27 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const { saveRefreshToken } = require("../models/tokenModel");
-
-const { sendVerificationEmailService } = require("./emailVerificationService");
+const {
+    saveRefreshToken,
+    findToken,
+    deleteToken,
+} = require("../models/tokenModel");
 
 const {
     addUser,
     getAllUsers,
     findUserByEmail,
+    findUserById,
     findUserWithPasswordById,
     updatePassword,
     updateProfileImage,
     getProfileImage,
     updateUser,
 } = require("../models/userModel");
+
+const { sendVerificationEmailService } = require("./emailVerificationService");
+
+const AppError = require("../utils/AppError");
 
 let lastGeneratedUserId = 0;
 
@@ -36,17 +43,17 @@ const loginUserService = async ({ email, password }) => {
     const user = await findUserByEmail(email);
 
     if (!user) {
-        throw new Error("User not found");
+        throw new AppError("Invalid email or password", 400);
     }
 
     if (!user.is_verified) {
-        throw new Error("Please verify your email before logging in.");
+        throw new AppError("Please verify your email before logging in.", 400);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw new Error("Invalid credentials");
+        throw new AppError("Invalid email or password", 400);
     }
 
     const accessToken = jwt.sign(
@@ -88,13 +95,11 @@ const loginUserService = async ({ email, password }) => {
     };
 };
 
-module.exports.loginUserService = loginUserService;
-
 const createUserService = async (data) => {
     const { name, email, password } = data;
 
     if (!password) {
-        throw new Error("Password is required");
+        throw new AppError("Password is required", 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -112,10 +117,6 @@ const createUserService = async (data) => {
     await addUser(newUser);
 
     await sendVerificationEmailService(email);
-
-    /*
-     * Never return the password hash.
-     */
 
     const safeUser = {
         id: newUser.id,
@@ -135,13 +136,11 @@ const updateUserService = async (userId, name, email, role) => {
     const user = await findUserWithPasswordById(userId);
 
     if (!user) {
-        throw new Error("User not found");
+        throw new AppError("User not found", 400);
     }
 
     const updatedName = name !== undefined ? name : user.name;
-
     const updatedEmail = email !== undefined ? email : user.email;
-
     const updatedRole = role !== undefined ? role : user.role;
 
     await updateUser(userId, updatedName, updatedEmail, updatedRole);
@@ -154,23 +153,77 @@ const updateUserService = async (userId, name, email, role) => {
     };
 };
 
+const refreshTokenService = async (token) => {
+    const stored = await findToken(token);
+
+    if (!stored) {
+        throw new AppError("Token not valid", 403);
+    }
+
+    let decoded;
+
+    try {
+        decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    } catch (err) {
+        throw new AppError("Invalid refresh token", 403);
+    }
+
+    const user = await findUserById(decoded.id);
+
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+
+    return jwt.sign(
+        {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "15m",
+        }
+    );
+};
+
+const logoutUserService = async (token) => {
+    if (token) {
+        await deleteToken(token);
+    }
+};
+
+const getCurrentUserService = async (userId) => {
+    const user = await findUserById(userId);
+
+    if (!user) {
+        throw new AppError("User not found", 404);
+    }
+
+    return user;
+};
+
 const changePasswordService = async (userId, currentPassword, newPassword) => {
     const user = await findUserWithPasswordById(userId);
 
     if (!user) {
-        throw new Error("User not found");
+        throw new AppError("User not found", 400);
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isMatch) {
-        throw new Error("Current password is incorrect");
+        throw new AppError("Current password is incorrect", 400);
     }
 
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
 
     if (isSamePassword) {
-        throw new Error("New password cannot be the same as the current password");
+        throw new AppError(
+            "New password cannot be the same as the current password",
+            400
+        );
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -180,7 +233,7 @@ const changePasswordService = async (userId, currentPassword, newPassword) => {
 
 const uploadProfileImageService = async (userId, file) => {
     if (!file) {
-        throw new Error("Please select an image.");
+        throw new AppError("Please select an image.", 400);
     }
 
     const oldImage = await getProfileImage(userId);
@@ -204,7 +257,10 @@ module.exports = {
     createUserService,
     getUsersService,
     loginUserService,
+    updateUserService,
     changePasswordService,
     uploadProfileImageService,
-    updateUserService,
+    refreshTokenService,
+    logoutUserService,
+    getCurrentUserService,
 };

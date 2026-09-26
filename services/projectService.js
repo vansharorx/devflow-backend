@@ -8,13 +8,15 @@ const {
 
 const { findUserById } = require("../models/userModel");
 const { addProjectMember } = require("../models/projectMemberModel");
+const AppError = require("../utils/AppError");
 
 const createProjectService = async (data) => {
     const { name, description, createdBy } = data;
 
     const user = await findUserById(createdBy);
+
     if (!user) {
-        throw new Error("User not found");
+        throw new AppError("User not found", 400);
     }
 
     const newProject = {
@@ -26,6 +28,7 @@ const createProjectService = async (data) => {
 
     await addProject(newProject);
     await addProjectMember(newProject.id, createdBy);
+
     return newProject;
 };
 
