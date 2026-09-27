@@ -52,12 +52,16 @@ const getIssuesService = async (user) => {
     return await getAllIssues(user.id, user.role === "ADMIN");
 };
 
-const getDetailedIssuesService = async () => {
-    return await getDetailedIssues();
+const getDetailedIssuesService = async (user) => {
+    return await getDetailedIssues(user.id, user.role === "ADMIN");
 };
 
-const getFilteredIssuesService = async (query) => {
-    return await getPaginatedFilteredIssues(query);
+const getFilteredIssuesService = async (query, user) => {
+    return await getPaginatedFilteredIssues(
+        query,
+        user.id,
+        user.role === "ADMIN"
+    );
 };
 
 const transactionalAssignIssue = async ({ issueId, userId, issueTitle }) => {

@@ -3,7 +3,7 @@ const db = require("../config/db");
 const addIssue = (issue) => {
     return new Promise((resolve, reject) => {
         const sql = `
-            INSERT INTO issues 
+            INSERT INTO issues
             (
                 id,
                 title,
@@ -200,9 +200,9 @@ const assignIssue = (id, userId) => {
     });
 };
 
-const getDetailedIssues = () => {
+const getDetailedIssues = (userId, isAdmin = false) => {
     return new Promise((resolve, reject) => {
-        const sql = `
+        let sql = `
             SELECT
                 i.id,
                 i.title,
@@ -221,41 +221,74 @@ const getDetailedIssues = () => {
             WHERE i.is_deleted = FALSE
         `;
 
-        db.query(sql, (err, results) => {
+        const params = [];
+
+        if (!isAdmin) {
+            sql += `
+                AND EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = i.project_id
+                    AND pm.user_id = ?
+                )
+            `;
+
+            params.push(userId);
+        }
+
+        db.query(sql, params, (err, results) => {
             if (err) return reject(err);
+
             resolve(results);
         });
     });
 };
 
-const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) => {
+const getPaginatedFilteredIssues = (
+    { page = 1, limit = 5, status, projectId },
+    userId,
+    isAdmin = false
+) => {
     return new Promise((resolve, reject) => {
         const offset = (page - 1) * limit;
 
         let sql = `
             SELECT
-                id,
-                title,
-                description,
-                project_id,
-                created_by,
-                assigned_to,
-                status,
-                attachment,
-                created_at
-            FROM issues
-            WHERE is_deleted = FALSE
+                i.id,
+                i.title,
+                i.description,
+                i.project_id,
+                i.created_by,
+                i.assigned_to,
+                i.status,
+                i.attachment,
+                i.created_at
+            FROM issues i
+            WHERE i.is_deleted = FALSE
         `;
 
         const params = [];
 
+        if (!isAdmin) {
+            sql += `
+                AND EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = i.project_id
+                    AND pm.user_id = ?
+                )
+            `;
+
+            params.push(userId);
+        }
+
         if (status) {
-            sql += ` AND status = ?`;
+            sql += ` AND i.status = ?`;
             params.push(status);
         }
 
         if (projectId) {
-            sql += ` AND project_id = ?`;
+            sql += ` AND i.project_id = ?`;
             params.push(projectId);
         }
 
@@ -267,6 +300,7 @@ const getPaginatedFilteredIssues = ({ page = 1, limit = 5, status, projectId }) 
 
         db.query(sql, params, (err, results) => {
             if (err) return reject(err);
+
             resolve(results);
         });
     });
@@ -282,10 +316,12 @@ const deleteIssue = (id) => {
 
         db.query(sql, [id], (err, result) => {
             if (err) return reject(err);
+
             resolve(result);
         });
     });
 };
+
 module.exports = {
     addIssue,
     getAllIssues,

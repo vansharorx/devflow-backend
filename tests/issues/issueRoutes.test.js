@@ -277,19 +277,12 @@ describe("Issue routes", () => {
             });
 
         expect(response.statusCode).toBe(200);
-
         expect(response.body.success).toBe(true);
-
         expect(response.body.message).toBe("Issue created");
-
         expect(response.body.data).toBeDefined();
-
         expect(response.body.data.title).toBe("Implement issue tracking tests");
-
         expect(response.body.data.projectId).toBe(project.id);
-
         expect(response.body.data.createdBy).toBe(manager.id);
-
         expect(response.body.data.status).toBe("OPEN");
 
         issue = response.body.data;
@@ -307,7 +300,6 @@ describe("Issue routes", () => {
             });
 
         expect(response.statusCode).toBe(403);
-
         expect(response.body.success).toBe(false);
     });
 
@@ -321,7 +313,6 @@ describe("Issue routes", () => {
             });
 
         expect(response.statusCode).toBe(400);
-
         expect(response.body.success).toBe(false);
     });
 
@@ -331,9 +322,7 @@ describe("Issue routes", () => {
             .set("Authorization", `Bearer ${developerToken}`);
 
         expect(response.statusCode).toBe(200);
-
         expect(response.body.success).toBe(true);
-
         expect(Array.isArray(response.body.data)).toBe(true);
 
         expect(
@@ -345,8 +334,82 @@ describe("Issue routes", () => {
         const response = await request(app).get("/api/v1/issues");
 
         expect(response.statusCode).toBe(401);
-
         expect(response.body.success).toBe(false);
+    });
+
+    test("returns detailed issues only to project members", async () => {
+        const memberResponse = await request(app)
+            .get("/api/v1/issues/detailed")
+            .set("Authorization", `Bearer ${developerToken}`);
+
+        expect(memberResponse.statusCode).toBe(200);
+        expect(memberResponse.body.success).toBe(true);
+        expect(Array.isArray(memberResponse.body.data)).toBe(true);
+
+        expect(
+            memberResponse.body.data.some((item) => item.id === issue.id)
+        ).toBe(true);
+
+        const outsiderResponse = await request(app)
+            .get("/api/v1/issues/detailed")
+            .set("Authorization", `Bearer ${outsiderManagerToken}`);
+
+        expect(outsiderResponse.statusCode).toBe(200);
+        expect(outsiderResponse.body.success).toBe(true);
+        expect(Array.isArray(outsiderResponse.body.data)).toBe(true);
+
+        expect(
+            outsiderResponse.body.data.some((item) => item.id === issue.id)
+        ).toBe(false);
+    });
+
+    test("filters issues only within projects the user can access", async () => {
+        const memberResponse = await request(app)
+            .get(`/api/v1/issues/filter?projectId=${project.id}`)
+            .set("Authorization", `Bearer ${developerToken}`);
+
+        expect(memberResponse.statusCode).toBe(200);
+        expect(memberResponse.body.success).toBe(true);
+        expect(Array.isArray(memberResponse.body.data)).toBe(true);
+
+        expect(
+            memberResponse.body.data.some((item) => item.id === issue.id)
+        ).toBe(true);
+
+        const outsiderResponse = await request(app)
+            .get(`/api/v1/issues/filter?projectId=${project.id}`)
+            .set("Authorization", `Bearer ${outsiderManagerToken}`);
+
+        expect(outsiderResponse.statusCode).toBe(200);
+        expect(outsiderResponse.body.success).toBe(true);
+        expect(Array.isArray(outsiderResponse.body.data)).toBe(true);
+
+        expect(
+            outsiderResponse.body.data.some((item) => item.id === issue.id)
+        ).toBe(false);
+    });
+
+    test("allows issue history for a project member", async () => {
+        const response = await request(app)
+            .get(`/api/v1/issues/${issue.id}/history`)
+            .set("Authorization", `Bearer ${developerToken}`);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data).toBeDefined();
+        expect(response.body.data.id).toBe(issue.id);
+    });
+
+    test("denies issue history for a user who is not a project member", async () => {
+        const response = await request(app)
+            .get(`/api/v1/issues/${issue.id}/history`)
+            .set("Authorization", `Bearer ${outsiderManagerToken}`);
+
+        expect(response.statusCode).toBe(403);
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toBe(
+            "You are not a member of this project"
+        );
     });
 
     test("allows a project member manager to update issue status", async () => {
@@ -358,9 +421,7 @@ describe("Issue routes", () => {
             });
 
         expect(response.statusCode).toBe(200);
-
         expect(response.body.success).toBe(true);
-
         expect(response.body.message).toBe("Status updated");
 
         const databaseIssue = await new Promise((resolve, reject) => {
@@ -390,9 +451,7 @@ describe("Issue routes", () => {
             });
 
         expect(response.statusCode).toBe(403);
-
         expect(response.body.success).toBe(false);
-
         expect(response.body.message).toBe(
             "You are not a member of this project"
         );
@@ -407,9 +466,7 @@ describe("Issue routes", () => {
             });
 
         expect(response.statusCode).toBe(200);
-
         expect(response.body.success).toBe(true);
-
         expect(response.body.message).toBe("Issue assigned successfully");
 
         const databaseIssue = await new Promise((resolve, reject) => {
@@ -439,9 +496,7 @@ describe("Issue routes", () => {
             });
 
         expect(response.statusCode).toBe(403);
-
         expect(response.body.success).toBe(false);
-
         expect(response.body.message).toBe(
             "You are not a member of this project"
         );
@@ -453,9 +508,7 @@ describe("Issue routes", () => {
             .set("Authorization", `Bearer ${outsiderManagerToken}`);
 
         expect(response.statusCode).toBe(403);
-
         expect(response.body.success).toBe(false);
-
         expect(response.body.message).toBe(
             "You are not a member of this project"
         );
@@ -467,9 +520,7 @@ describe("Issue routes", () => {
             .set("Authorization", `Bearer ${managerToken}`);
 
         expect(response.statusCode).toBe(200);
-
         expect(response.body.success).toBe(true);
-
         expect(response.body.message).toBe("Issue deleted successfully");
 
         const databaseIssue = await new Promise((resolve, reject) => {

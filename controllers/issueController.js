@@ -105,7 +105,7 @@ exports.getIssueHistory = asyncHandler(async (req, res) => {
 });
 
 exports.getDetailedIssues = asyncHandler(async (req, res) => {
-    const data = await getDetailedIssuesService();
+    const data = await getDetailedIssuesService(req.user);
 
     res.json({
         success: true,
@@ -116,12 +116,15 @@ exports.getDetailedIssues = asyncHandler(async (req, res) => {
 exports.getFilteredIssues = asyncHandler(async (req, res) => {
     const { page = 1, limit = 5, status, projectId } = req.query;
 
-    const data = await getFilteredIssuesService({
-        page,
-        limit,
-        status,
-        projectId,
-    });
+    const data = await getFilteredIssuesService(
+        {
+            page,
+            limit,
+            status,
+            projectId,
+        },
+        req.user
+    );
 
     res.json({
         success: true,

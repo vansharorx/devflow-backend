@@ -7,7 +7,9 @@ const upload = require("../../middleware/uploadMiddleware");
 
 const { body } = require("express-validator");
 const validate = require("../../middleware/validationMiddleware");
-const { authorizeIssueProjectMember } = require("../../middleware/projectMemberMiddleware");
+const {
+    authorizeIssueProjectMember,
+} = require("../../middleware/projectMemberMiddleware");
 const issueController = require("../../controllers/issueController");
 
 const {
@@ -23,10 +25,19 @@ const {
 } = issueController;
 
 router.get("/search", authenticate, searchIssues);
+
 router.get("/filter", authenticate, getFilteredIssues);
+
 router.get("/", authenticate, getIssues);
+
 router.get("/detailed", authenticate, getDetailedIssues);
-router.get("/:id/history", authenticate, getIssueHistory);
+
+router.get(
+    "/:id/history",
+    authenticate,
+    authorizeIssueProjectMember,
+    getIssueHistory
+);
 
 router.post(
     "/",
