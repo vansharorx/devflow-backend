@@ -5,7 +5,6 @@ const addIssue = (issue) => {
         const sql = `
             INSERT INTO issues
             (
-                id,
                 title,
                 description,
                 project_id,
@@ -14,13 +13,12 @@ const addIssue = (issue) => {
                 status,
                 attachment
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
 
         db.query(
             sql,
             [
-                issue.id,
                 issue.title,
                 issue.description,
                 issue.projectId,
@@ -31,6 +29,7 @@ const addIssue = (issue) => {
             ],
             (err, result) => {
                 if (err) return reject(err);
+
                 resolve(result);
             }
         );

@@ -4,15 +4,16 @@ const createNotification = (notification) => {
     return new Promise((resolve, reject) => {
         const sql = `
             INSERT INTO notifications
-            (id, user_id, message)
-            VALUES (?, ?, ?)
+            (user_id, message)
+            VALUES (?, ?)
         `;
 
         db.query(
             sql,
-            [notification.id, notification.userId, notification.message],
+            [notification.userId, notification.message],
             (err, result) => {
                 if (err) return reject(err);
+
                 resolve(result);
             }
         );

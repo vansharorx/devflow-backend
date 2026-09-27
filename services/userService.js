@@ -26,19 +26,6 @@ const { sendVerificationEmailService } = require("./emailVerificationService");
 
 const AppError = require("../utils/AppError");
 
-let lastGeneratedUserId = 0;
-
-const generateUserId = () => {
-    const now = Date.now();
-
-    if (now <= lastGeneratedUserId) {
-        lastGeneratedUserId += 1;
-    } else {
-        lastGeneratedUserId = now;
-    }
-
-    return lastGeneratedUserId;
-};
 
 const loginUserService = async ({ email, password }) => {
     const user = await findUserByEmail(email);
@@ -105,28 +92,23 @@ const createUserService = async (data) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const userId = generateUserId();
-
     const newUser = {
-        id: userId,
         name,
         email,
         password: hashedPassword,
         role: "DEVELOPER",
     };
 
-    await addUser(newUser);
+    const result = await addUser(newUser);
 
     await sendVerificationEmailService(email);
 
-    const safeUser = {
-        id: newUser.id,
+    return {
+        id: result.insertId,
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
     };
-
-    return safeUser;
 };
 
 const getUsersService = async () => {

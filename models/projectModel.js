@@ -3,15 +3,16 @@ const db = require("../config/db");
 const addProject = (project) => {
     return new Promise((resolve, reject) => {
         const sql = `
-            INSERT INTO projects (id, name, description, created_by)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO projects (name, description, created_by)
+            VALUES (?, ?, ?)
         `;
 
         db.query(
             sql,
-            [project.id, project.name, project.description, project.createdBy],
+            [project.name, project.description, project.createdBy],
             (err, result) => {
                 if (err) return reject(err);
+
                 resolve(result);
             }
         );

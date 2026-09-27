@@ -4,14 +4,13 @@ const addActivity = (activity) => {
     return new Promise((resolve, reject) => {
         const sql = `
             INSERT INTO activities
-            (id, action, entity_type, entity_id, performed_by)
-            VALUES (?, ?, ?, ?, ?)
+            (action, entity_type, entity_id, performed_by)
+            VALUES (?, ?, ?, ?)
         `;
 
         db.query(
             sql,
             [
-                activity.id,
                 activity.action,
                 activity.entityType,
                 activity.entityId,
@@ -19,6 +18,7 @@ const addActivity = (activity) => {
             ],
             (err, result) => {
                 if (err) return reject(err);
+
                 resolve(result);
             }
         );

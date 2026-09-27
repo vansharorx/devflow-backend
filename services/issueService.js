@@ -33,7 +33,6 @@ const createIssueService = async (data) => {
     }
 
     const newIssue = {
-        id: Date.now(),
         title,
         description,
         projectId,
@@ -43,9 +42,12 @@ const createIssueService = async (data) => {
         attachment: data.attachment || null,
     };
 
-    await addIssue(newIssue);
+    const result = await addIssue(newIssue);
 
-    return newIssue;
+    return {
+        id: result.insertId,
+        ...newIssue,
+    };
 };
 
 const getIssuesService = async (user) => {
@@ -82,19 +84,19 @@ const transactionalAssignIssue = async ({ issueId, userId, issueTitle }) => {
         await connection.query(
             `
             INSERT INTO notifications
-            (id, user_id, message)
-            VALUES (?, ?, ?)
+            (user_id, message)
+            VALUES (?, ?)
             `,
-            [Date.now(), userId, `You were assigned issue: ${issueTitle}`]
+            [userId, `You were assigned issue: ${issueTitle}`]
         );
 
         await connection.query(
             `
             INSERT INTO activities
-            (id, action, entity_type, entity_id, performed_by)
-            VALUES (?, ?, ?, ?, ?)
+            (action, entity_type, entity_id, performed_by)
+            VALUES (?, ?, ?, ?)
             `,
-            [Date.now() + 1, "Issue Assigned", "ISSUE", issueId, userId]
+            ["Issue Assigned", "ISSUE", issueId, userId]
         );
 
         await connection.commit();

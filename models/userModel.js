@@ -4,13 +4,13 @@ const addUser = (user) => {
     return new Promise((resolve, reject) => {
         const sql = `
             INSERT INTO users
-            (id, name, email, password, role, is_verified)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (name, email, password, role, is_verified)
+            VALUES (?, ?, ?, ?, ?)
         `;
 
         db.query(
             sql,
-            [user.id, user.name, user.email, user.password, user.role, false],
+            [user.name, user.email, user.password, user.role, false],
             (err, result) => {
                 if (err) return reject(err);
 

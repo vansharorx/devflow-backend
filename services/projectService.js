@@ -12,24 +12,24 @@ const AppError = require("../utils/AppError");
 
 const createProjectService = async (data) => {
     const { name, description, createdBy } = data;
-
     const user = await findUserById(createdBy);
-
     if (!user) {
         throw new AppError("User not found", 400);
     }
-
     const newProject = {
-        id: Date.now(),
         name,
         description,
         createdBy,
     };
-
-    await addProject(newProject);
-    await addProjectMember(newProject.id, createdBy);
-
-    return newProject;
+    const result = await addProject(newProject);
+    const projectId = result.insertId;
+    await addProjectMember(projectId, createdBy);
+    return {
+        id: projectId,
+        name,
+        description,
+        createdBy,
+    };
 };
 
 const getProjectsService = async () => {

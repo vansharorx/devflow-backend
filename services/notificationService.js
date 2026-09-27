@@ -6,12 +6,16 @@ const {
 
 const createNotificationService = async ({ userId, message }) => {
     const notification = {
-        id: Date.now(),
         userId,
         message,
     };
 
-    await createNotification(notification);
+    const result = await createNotification(notification);
+
+    return {
+        id: result.insertId,
+        ...notification,
+    };
 };
 
 const getNotificationsService = async (userId) => {

@@ -1,15 +1,24 @@
 const { addActivity, getActivities } = require("../models/activityModel");
 
-const createActivityService = async ({ action, entityType, entityId, performedBy }) => {
+const createActivityService = async ({
+    action,
+    entityType,
+    entityId,
+    performedBy,
+}) => {
     const activity = {
-        id: Date.now(),
         action,
         entityType,
         entityId,
         performedBy,
     };
 
-    await addActivity(activity);
+    const result = await addActivity(activity);
+
+    return {
+        id: result.insertId,
+        ...activity,
+    };
 };
 
 const getActivitiesService = async () => {

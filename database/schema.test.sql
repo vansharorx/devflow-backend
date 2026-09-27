@@ -7,7 +7,7 @@ USE devflow_test;
 -- =========================================================
 
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE users (
 -- =========================================================
 
 CREATE TABLE projects (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     created_by BIGINT NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE project_members (
 -- =========================================================
 
 CREATE TABLE issues (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -182,7 +182,7 @@ CREATE TABLE email_verification_tokens (
 -- =========================================================
 
 CREATE TABLE activities (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     action VARCHAR(255),
 
@@ -232,7 +232,7 @@ CREATE TABLE comments (
 -- =========================================================
 
 CREATE TABLE notifications (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     user_id BIGINT NOT NULL,
 
