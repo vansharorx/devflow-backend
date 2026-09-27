@@ -10,9 +10,7 @@ const addUser = (user) => {
 
         db.query(
             sql,
-
             [user.id, user.name, user.email, user.password, user.role, false],
-
             (err, result) => {
                 if (err) return reject(err);
 
@@ -35,7 +33,6 @@ const getAllUsers = () => {
             FROM users
             WHERE is_deleted = FALSE
             `,
-
             (err, results) => {
                 if (err) return reject(err);
 
@@ -59,9 +56,7 @@ const findUserById = (id) => {
             WHERE id = ?
             AND is_deleted = FALSE
             `,
-
             [id],
-
             (err, results) => {
                 if (err) return reject(err);
 
@@ -80,9 +75,7 @@ const findUserByEmail = (email) => {
             WHERE email = ?
             AND is_deleted = FALSE
             `,
-
             [email],
-
             (err, results) => {
                 if (err) return reject(err);
 
@@ -101,9 +94,7 @@ const findUserWithPasswordById = (id) => {
             WHERE id = ?
             AND is_deleted = FALSE
             `,
-
             [id],
-
             (err, results) => {
                 if (err) return reject(err);
 
@@ -121,9 +112,7 @@ const updatePassword = (id, hashedPassword) => {
             SET password = ?
             WHERE id = ?
             `,
-
             [hashedPassword, id],
-
             (err, result) => {
                 if (err) return reject(err);
 
@@ -141,9 +130,7 @@ const verifyUser = (id) => {
             SET is_verified = TRUE
             WHERE id = ?
             `,
-
             [id],
-
             (err, result) => {
                 if (err) return reject(err);
 
@@ -161,9 +148,7 @@ const updateProfileImage = (id, profileImage) => {
             SET profile_image = ?
             WHERE id = ?
             `,
-
             [profileImage, id],
-
             (err, result) => {
                 if (err) return reject(err);
 
@@ -181,9 +166,7 @@ const getProfileImage = (id) => {
             FROM users
             WHERE id = ?
             `,
-
             [id],
-
             (err, results) => {
                 if (err) return reject(err);
 
@@ -205,9 +188,26 @@ const updateUser = (id, name, email, role) => {
             WHERE id = ?
             AND is_deleted = FALSE
             `,
-
             [name, email, role, id],
+            (err, result) => {
+                if (err) return reject(err);
 
+                resolve(result);
+            }
+        );
+    });
+};
+
+const softDeleteUser = (id) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `
+            UPDATE users
+            SET is_deleted = TRUE
+            WHERE id = ?
+            AND is_deleted = FALSE
+            `,
+            [id],
             (err, result) => {
                 if (err) return reject(err);
 
@@ -228,4 +228,5 @@ module.exports = {
     updateProfileImage,
     getProfileImage,
     updateUser,
+    softDeleteUser,
 };

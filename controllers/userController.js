@@ -6,6 +6,7 @@ const {
     getUsersService,
     loginUserService,
     updateUserService,
+    deleteUserService,
     changePasswordService,
     uploadProfileImageService,
     refreshTokenService,
@@ -53,9 +54,11 @@ exports.updateUser = asyncHandler(async (req, res) => {
 });
 
 exports.deleteUser = asyncHandler(async (req, res) => {
+    await deleteUserService(req.params.id);
+
     res.json({
         success: true,
-        message: "deleteUser working",
+        message: "User deleted successfully",
     });
 });
 

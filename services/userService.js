@@ -19,6 +19,7 @@ const {
     updateProfileImage,
     getProfileImage,
     updateUser,
+    softDeleteUser,
 } = require("../models/userModel");
 
 const { sendVerificationEmailService } = require("./emailVerificationService");
@@ -153,6 +154,16 @@ const updateUserService = async (userId, name, email, role) => {
     };
 };
 
+const deleteUserService = async (userId) => {
+    const result = await softDeleteUser(userId);
+
+    if (result.affectedRows === 0) {
+        throw new AppError("User not found", 404);
+    }
+
+    return true;
+};
+
 const refreshTokenService = async (token) => {
     const stored = await findToken(token);
 
@@ -258,6 +269,7 @@ module.exports = {
     getUsersService,
     loginUserService,
     updateUserService,
+    deleteUserService,
     changePasswordService,
     uploadProfileImageService,
     refreshTokenService,
