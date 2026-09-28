@@ -30,7 +30,6 @@ const sendVerificationEmailService = async (email) => {
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     await saveVerificationToken({
-        id: Date.now(),
         userId: user.id,
         token,
         expiresAt,

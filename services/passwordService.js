@@ -24,7 +24,6 @@ const forgotPasswordService = async (email) => {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     await saveResetToken({
-        id: Date.now(),
         userId: user.id,
         token,
         expiresAt,

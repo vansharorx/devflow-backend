@@ -1,15 +1,15 @@
 const db = require("../config/db");
 
-const saveResetToken = ({ id, userId, token, expiresAt }) => {
+const saveResetToken = ({ userId, token, expiresAt }) => {
     return new Promise((resolve, reject) => {
         db.query(
             `
             INSERT INTO password_reset_tokens
-            (id, user_id, token, expires_at)
-            VALUES (?, ?, ?, ?)
+            (user_id, token, expires_at)
+            VALUES (?, ?, ?)
             `,
 
-            [id, userId, token, expiresAt],
+            [userId, token, expiresAt],
 
             (err, result) => {
                 if (err) return reject(err);

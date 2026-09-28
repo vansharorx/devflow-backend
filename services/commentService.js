@@ -2,15 +2,17 @@ const { addComment, getCommentsByIssue } = require("../models/commentModel");
 
 const createCommentService = async ({ issueId, userId, comment }) => {
     const newComment = {
-        id: Date.now(),
         issueId,
         userId,
         comment,
     };
 
-    await addComment(newComment);
+    const result = await addComment(newComment);
 
-    return newComment;
+    return {
+        id: result.insertId,
+        ...newComment,
+    };
 };
 
 const getIssueCommentsService = async (issueId) => {

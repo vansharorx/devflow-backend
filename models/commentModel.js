@@ -4,13 +4,13 @@ const addComment = (commentData) => {
     return new Promise((resolve, reject) => {
         const sql = `
             INSERT INTO comments
-            (id, issue_id, user_id, comment)
-            VALUES (?, ?, ?, ?)
+            (issue_id, user_id, comment)
+            VALUES (?, ?, ?)
         `;
 
         db.query(
             sql,
-            [commentData.id, commentData.issueId, commentData.userId, commentData.comment],
+            [commentData.issueId, commentData.userId, commentData.comment],
             (err, result) => {
                 if (err) return reject(err);
                 resolve(result);
