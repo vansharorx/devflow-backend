@@ -138,7 +138,7 @@ CREATE TABLE refresh_tokens (
 -- =========================================================
 
 CREATE TABLE password_reset_tokens (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     user_id BIGINT NOT NULL,
 
@@ -160,7 +160,7 @@ CREATE TABLE password_reset_tokens (
 -- =========================================================
 
 CREATE TABLE email_verification_tokens (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     user_id BIGINT NOT NULL,
 
@@ -205,7 +205,7 @@ CREATE TABLE activities (
 -- =========================================================
 
 CREATE TABLE comments (
-    id BIGINT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
 
     issue_id BIGINT NOT NULL,
 
