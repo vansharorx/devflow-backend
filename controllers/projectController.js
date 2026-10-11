@@ -7,6 +7,10 @@ const {
     restoreProjectService,
 } = require("../services/projectService");
 
+const {
+    getProjectAnalytics: getProjectAnalyticsData,
+} = require("../models/dashboardModel");
+
 const cache = require("../config/cache");
 
 exports.getProjects = asyncHandler(async (req, res) => {
@@ -47,9 +51,14 @@ exports.createProject = asyncHandler(async (req, res) => {
 });
 
 exports.getProjectAnalytics = asyncHandler(async (req, res) => {
+    const analytics = await getProjectAnalyticsData(
+        req.user.id,
+        req.user.role
+    );
+
     res.json({
         success: true,
-        message: "Analytics endpoint working",
+        data: analytics,
     });
 });
 

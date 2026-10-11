@@ -362,7 +362,17 @@ describe("Project Routes", () => {
 
         expect(response.body).toEqual({
             success: true,
-            message: "Analytics endpoint working",
+            data: {
+                totals: {
+                    projects: expect.any(Number),
+                    totalIssues: expect.any(Number),
+                    openIssues: expect.any(Number),
+                    inProgressIssues: expect.any(Number),
+                    closedIssues: expect.any(Number),
+                    progress: expect.any(Number),
+                },
+                projects: expect.any(Array),
+            },
         });
     });
 

@@ -198,6 +198,94 @@ const getRecentActivities = async () => {
     return rows;
 };
 
+const getProjectAnalytics = async (userId, role) => {
+    const isAdmin = String(role || "").toUpperCase() === "ADMIN";
+
+    const [rows] = await db.promise().query(
+        `
+        SELECT
+            p.id,
+            p.name,
+            p.description,
+            COUNT(i.id) AS totalIssues,
+            COALESCE(SUM(
+                CASE WHEN UPPER(i.status) = 'OPEN'
+                THEN 1 ELSE 0 END
+            ), 0) AS openIssues,
+            COALESCE(SUM(
+                CASE WHEN UPPER(i.status) IN ('IN_PROGRESS', 'IN PROGRESS')
+                THEN 1 ELSE 0 END
+            ), 0) AS inProgressIssues,
+            COALESCE(SUM(
+                CASE WHEN UPPER(i.status) = 'CLOSED'
+                THEN 1 ELSE 0 END
+            ), 0) AS closedIssues
+        FROM projects p
+        LEFT JOIN issues i
+            ON i.project_id = p.id
+            AND i.is_deleted = FALSE
+        WHERE p.is_deleted = FALSE
+            AND (
+                ? = TRUE
+                OR p.created_by = ?
+                OR EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = p.id
+                    AND pm.user_id = ?
+                )
+            )
+        GROUP BY p.id, p.name, p.description
+        ORDER BY p.name ASC
+        `,
+        [isAdmin, userId, userId]
+    );
+
+    const projects = rows.map((project) => {
+        const totalIssues = Number(project.totalIssues);
+        const openIssues = Number(project.openIssues);
+        const inProgressIssues = Number(project.inProgressIssues);
+        const closedIssues = Number(project.closedIssues);
+
+        return {
+            id: project.id,
+            name: project.name,
+            description: project.description,
+            totalIssues,
+            openIssues,
+            inProgressIssues,
+            closedIssues,
+            progress: totalIssues === 0
+                ? 0
+                : Math.round((closedIssues / totalIssues) * 100),
+        };
+    });
+
+    const totals = projects.reduce(
+        (result, project) => ({
+            projects: result.projects + 1,
+            totalIssues: result.totalIssues + project.totalIssues,
+            openIssues: result.openIssues + project.openIssues,
+            inProgressIssues:
+                result.inProgressIssues + project.inProgressIssues,
+            closedIssues: result.closedIssues + project.closedIssues,
+        }),
+        {
+            projects: 0,
+            totalIssues: 0,
+            openIssues: 0,
+            inProgressIssues: 0,
+            closedIssues: 0,
+        }
+    );
+
+    totals.progress = totals.totalIssues === 0
+        ? 0
+        : Math.round((totals.closedIssues / totals.totalIssues) * 100);
+
+    return { totals, projects };
+};
+
 module.exports = {
     getTotalCounts,
     getIssueStatus,
@@ -206,4 +294,5 @@ module.exports = {
     getWeeklyActivity,
     getProjectProgress,
     getRecentActivities,
+    getProjectAnalytics,
 };

@@ -56,7 +56,21 @@ describe("GET /api/v1/projects/analytics", () => {
 
         expect(response.body.success).toBe(true);
 
-        expect(response.body.message).toBe("Analytics endpoint working");
+        expect(response.body.success).toBe(true);
+
+        expect(response.body.data).toEqual(
+            expect.objectContaining({
+                totals: expect.objectContaining({
+                    projects: expect.any(Number),
+                    totalIssues: expect.any(Number),
+                    openIssues: expect.any(Number),
+                    inProgressIssues: expect.any(Number),
+                    closedIssues: expect.any(Number),
+                    progress: expect.any(Number),
+                }),
+                projects: expect.any(Array),
+            })
+        );
     });
 
     test("rejects request without authentication", async () => {
