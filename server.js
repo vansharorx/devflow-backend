@@ -1,17 +1,13 @@
 const http = require("http");
-
+const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 
 const app = require("./app");
-
 const startCleanupJob = require("./jobs/cleanupJob");
 
 const PORT = process.env.PORT || 2005;
-
-/* HTTP Server */
 const server = http.createServer(app);
 
-/* Socket.IO */
 const io = new Server(server, {
     cors: {
         origin: process.env.FRONTEND_URL,
@@ -19,19 +15,42 @@ const io = new Server(server, {
     },
 });
 
-/* Socket Events */
+// Reject connections without a valid access token.
+io.use((socket, next) => {
+    try {
+        const token = socket.handshake.auth?.token;
+
+        if (!token || !process.env.JWT_SECRET) {
+            return next(new Error("unauthorized"));
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        if (!decoded.id) {
+            return next(new Error("unauthorized"));
+        }
+
+        socket.userId = String(decoded.id);
+        next();
+    } catch {
+        next(new Error("unauthorized"));
+    }
+});
+
+// Each socket joins only its authenticated user's room.
 io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    socket.join(`user:${socket.userId}`);
+
+    console.log(`Authenticated socket connected: ${socket.userId}`);
 
     socket.on("disconnect", () => {
-        console.log("User disconnected");
+        console.log(`Socket disconnected: ${socket.userId}`);
     });
 });
 
-/* Make io available globally */
+// Make Socket.IO available to controllers.
 app.set("io", io);
 
-/* Start Cron Jobs */
 startCleanupJob();
 
 server.listen(PORT, () => {

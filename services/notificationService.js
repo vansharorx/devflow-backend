@@ -22,8 +22,8 @@ const getNotificationsService = async (userId) => {
     return await getUserNotifications(userId);
 };
 
-const markReadService = async (id) => {
-    return await markNotificationRead(id);
+const markReadService = async (id, userId) => {
+    return await markNotificationRead(id, userId);
 };
 
 module.exports = {

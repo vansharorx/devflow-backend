@@ -36,15 +36,15 @@ const getUserNotifications = (userId) => {
     });
 };
 
-const markNotificationRead = (id) => {
+const markNotificationRead = (id, userId) => {
     return new Promise((resolve, reject) => {
         db.query(
             `
             UPDATE notifications
             SET is_read = TRUE
-            WHERE id = ?
+            WHERE id = ? AND user_id = ?
             `,
-            [id],
+            [id, userId],
             (err, result) => {
                 if (err) return reject(err);
                 resolve(result);

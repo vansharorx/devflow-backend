@@ -5,7 +5,9 @@ const app = require("../../app");
 const db = require("../../config/db");
 
 const mockIo = {
-    emit: jest.fn(),
+    to: jest.fn().mockReturnValue({
+        emit: jest.fn(),
+    }),
 };
 
 app.set("io", mockIo);

@@ -84,7 +84,14 @@ exports.assignIssue = asyncHandler(async (req, res) => {
 
     const io = req.app.get("io");
 
-    io.emit("notification");
+    if (io) {
+        io.to(`user:${String(userId)}`).emit("notification", {
+            type: "issue_assigned",
+            message: `You were assigned: ${issue.title}`,
+            issueId: issue.id,
+            issueTitle: issue.title,
+        });
+    }
 
     res.json({
         success: true,

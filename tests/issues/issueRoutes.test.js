@@ -75,9 +75,13 @@ describe("Issue routes", () => {
     let developerToken;
 
     beforeAll(async () => {
-        app.set("io", {
+        const mockIo = {
+        to: jest.fn().mockReturnValue({
             emit: jest.fn(),
-        });
+        }),
+    };
+
+    app.set("io", mockIo);
 
         manager = await createUser(
             "Issue Manager",
