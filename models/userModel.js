@@ -217,9 +217,32 @@ const softDeleteUser = (id) => {
     });
 };
 
+const getTeamMembers = () => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `
+            SELECT
+                id,
+                name,
+                role,
+                profile_image
+            FROM users
+            WHERE is_deleted = FALSE
+            ORDER BY name ASC
+            `,
+            (err, results) => {
+                if (err) return reject(err);
+
+                resolve(results);
+            }
+        );
+    });
+};
+
 module.exports = {
     addUser,
     getAllUsers,
+    getTeamMembers,
     findUserById,
     findUserByEmail,
     findUserWithPasswordById,

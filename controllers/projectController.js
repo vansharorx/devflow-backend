@@ -3,6 +3,7 @@ const asyncHandler = require("../middleware/asyncHandler");
 const {
     createProjectService,
     getProjectsService,
+    findProjectById,
     deleteProjectService,
     restoreProjectService,
 } = require("../services/projectService");
@@ -10,6 +11,8 @@ const {
 const {
     getProjectAnalytics: getProjectAnalyticsData,
 } = require("../models/dashboardModel");
+
+const { createActivityService } = require("../services/activityService");
 
 const cache = require("../config/cache");
 
@@ -43,9 +46,31 @@ exports.createProject = asyncHandler(async (req, res) => {
 
     cache.del("projects");
 
+    await createActivityService({
+        action: `Project Created: ${project.name}`,
+        entityType: "PROJECT",
+        entityId: project.id,
+        performedBy: req.user.id,
+    });
+
     res.json({
         success: true,
         message: "Project created",
+        data: project,
+    });
+});
+
+exports.getProjectById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const project = await findProjectById(id);
+
+    if (!project) {
+        const AppError = require("../utils/AppError");
+        throw new AppError("Project not found", 404);
+    }
+
+    res.json({
+        success: true,
         data: project,
     });
 });

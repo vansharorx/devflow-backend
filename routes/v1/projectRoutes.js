@@ -19,6 +19,7 @@ const validate = require("../../middleware/validationMiddleware");
 
 const {
     getProjects,
+    getProjectById,
     createProject,
     getProjectAnalytics,
     deleteProject,
@@ -28,6 +29,8 @@ const {
 router.get("/", authenticate, getProjects);
 
 router.get("/analytics", authenticate, getProjectAnalytics);
+
+router.get("/:id", authenticate, getProjectById);
 
 router.post(
     "/",

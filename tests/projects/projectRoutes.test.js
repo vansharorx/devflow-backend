@@ -108,6 +108,11 @@ describe("Project Routes", () => {
             const placeholders = ids.map(() => "?").join(",");
 
             await query(
+                `DELETE FROM activities WHERE entity_type = 'PROJECT' AND entity_id IN (${placeholders})`,
+                ids
+            );
+
+            await query(
                 `DELETE FROM project_members WHERE project_id IN (${placeholders})`,
                 ids
             );
@@ -122,6 +127,11 @@ describe("Project Routes", () => {
 
         if (emails.length > 0) {
             const placeholders = emails.map(() => "?").join(",");
+
+            await query(
+                `DELETE FROM activities WHERE performed_by IN (SELECT id FROM (SELECT id FROM users WHERE email IN (${placeholders})) AS u)`,
+                emails
+            );
 
             await query(
                 `DELETE FROM users WHERE email IN (${placeholders})`,

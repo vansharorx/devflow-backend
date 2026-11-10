@@ -5,6 +5,8 @@ const {
     getIssueCommentsService,
 } = require("../services/commentService");
 
+const { createActivityService } = require("../services/activityService");
+
 exports.createComment = asyncHandler(async (req, res) => {
     const { issueId, comment } = req.body;
 
@@ -12,6 +14,13 @@ exports.createComment = asyncHandler(async (req, res) => {
         issueId,
         userId: req.user.id,
         comment,
+    });
+
+    await createActivityService({
+        action: "Comment Added",
+        entityType: "ISSUE",
+        entityId: issueId,
+        performedBy: req.user.id,
     });
 
     res.json({

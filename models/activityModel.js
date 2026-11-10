@@ -29,9 +29,17 @@ const getActivities = () => {
     return new Promise((resolve, reject) => {
         db.query(
             `
-            SELECT *
-            FROM activities
-            ORDER BY created_at DESC
+            SELECT
+                a.id,
+                a.action,
+                a.entity_type,
+                a.entity_id,
+                a.performed_by,
+                u.name AS performed_by_name,
+                a.created_at
+            FROM activities a
+            LEFT JOIN users u ON a.performed_by = u.id
+            ORDER BY a.created_at DESC
             `,
             (err, results) => {
                 if (err) return reject(err);

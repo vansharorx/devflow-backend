@@ -12,6 +12,7 @@ const {
 const {
     addUser,
     getAllUsers,
+    getTeamMembers,
     findUserByEmail,
     findUserById,
     findUserWithPasswordById,
@@ -113,6 +114,10 @@ const createUserService = async (data) => {
 
 const getUsersService = async () => {
     return await getAllUsers();
+};
+
+const getTeamMembersService = async () => {
+    return await getTeamMembers();
 };
 
 const updateUserService = async (userId, name, email, role) => {
@@ -249,6 +254,7 @@ const uploadProfileImageService = async (userId, file) => {
 module.exports = {
     createUserService,
     getUsersService,
+    getTeamMembersService,
     loginUserService,
     updateUserService,
     deleteUserService,

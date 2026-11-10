@@ -57,7 +57,7 @@ router.put(
     authenticate,
     authorizeRoles("ADMIN", "MANAGER"),
     authorizeIssueProjectMember,
-    [body("status").isIn(["OPEN", "CLOSED"]).withMessage("Invalid issue status")],
+    [body("status").isIn(["OPEN", "IN_PROGRESS", "CLOSED"]).withMessage("Invalid issue status")],
     validate,
     updateIssueStatus
 );

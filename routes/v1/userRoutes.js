@@ -38,12 +38,15 @@ const {
     changePassword,
     uploadProfileImage,
     getCurrentUser,
+    getTeamMembers,
 } = require("../../controllers/userController");
 
 const { body } = require("express-validator");
 const validate = require("../../middleware/validationMiddleware");
 
 router.get("/me", authenticate, getCurrentUser);
+
+router.get("/team", authenticate, getTeamMembers);
 
 router.get("/", authenticate, authorizeRoles("ADMIN"), getUsers);
 

@@ -60,6 +60,13 @@ exports.updateIssueStatus = asyncHandler(async (req, res) => {
 
     await updateIssueStatusService(id, status);
 
+    await createActivityService({
+        action: `Issue Status → ${status}`,
+        entityType: "ISSUE",
+        entityId: id,
+        performedBy: req.user.id,
+    });
+
     res.json({
         success: true,
         message: "Status updated",

@@ -4,6 +4,7 @@ const AppError = require("../utils/AppError");
 const {
     createUserService,
     getUsersService,
+    getTeamMembersService,
     loginUserService,
     updateUserService,
     deleteUserService,
@@ -28,6 +29,15 @@ exports.getUsers = asyncHandler(async (req, res) => {
     res.json({
         success: true,
         data: users,
+    });
+});
+
+exports.getTeamMembers = asyncHandler(async (req, res) => {
+    const members = await getTeamMembersService();
+
+    res.json({
+        success: true,
+        data: members,
     });
 });
 

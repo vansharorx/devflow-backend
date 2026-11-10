@@ -94,6 +94,7 @@ describe("Comment Routes", () => {
 
     afterAll(async () => {
         await query("DELETE FROM comments WHERE issue_id = ?", [issue.id]);
+        await query("DELETE FROM activities WHERE performed_by = ?", [user.id]);
         await query("DELETE FROM issues WHERE id = ?", [issue.id]);
 
         await query("DELETE FROM project_members WHERE project_id = ?", [
